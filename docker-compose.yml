@@ -1,0 +1,56 @@
+services:
+  frontend:
+    container_name: qms-hub-app-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=production
+      - PORT=3010
+    expose:
+      - 3010
+    depends_on:
+      - backend
+    networks:
+      - qms-hub-app-network
+
+  backend:
+    container_name: qms-hub-app-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8910:8910"
+    expose:
+      - 8910
+    depends_on:
+      - pgdatabase
+    networks:
+      - qms-hub-app-network
+
+  pgdatabase:
+    container_name: qms-hub-app-db
+    image: postgres:16.2-bookworm
+    ports:
+      - 5410:5432
+    restart: always
+    environment:
+      - POSTGRES_DB=qmsdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=welcome1
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./qmsdb:/var/lib/postgresql/data:rw
+    networks:
+      - qms-hub-app-network
+
+networks:
+  qms-hub-app-network:
+    name: qms-hub-app-network
