@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { UserContext } from "@/app/_context/UserContext";
 
 export default function Welcome() {
-    const user = {
-        "user_name": "Sriram",
-    };
+  // const userContext = useContext(UserContext);
+  // if (!userContext) {
+  //   throw new Error('UserContext is not available');
+  // }
+  // const [ user, setUser] = userContext;
+  const user = {user_email: "raju.rgi@gmail.com", user_name: "Rajiv Iyer"};
 
   return (
     <div className="flex items-center justify-between">

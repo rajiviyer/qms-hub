@@ -1,10 +1,26 @@
-from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Annotated
+from typing import Annotated, List
+from fastapi import FastAPI, Depends
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+from fastapi.security import OAuth2PasswordRequestForm
+from .db.db_connector import get_session, create_table
+from contextlib import asynccontextmanager
+from .db_models.admin_models import Admin
+from .db_models.user_models import User, Token
+from .utils.exceptions import (
+    NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
+    )
+from .controllers.user_controller import sign_up, sign_in
 
-# from .utils.functions import get_docs
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Creating Tables..")
+    create_table()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 # Middleware for CORS
 app.add_middleware(
@@ -15,6 +31,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/test")
-def test_route():
-    return {"message": "Hello, World!"}
+@app.exception_handler(NotFoundException)
+def not_found(request: Request, exception: NotFoundException):
+    return JSONResponse(
+        status_code = 404,
+        content = f"{exception.entity} {exception.entity_name} Not Found")
+
+@app.exception_handler(UserEmailExistsException)
+def user_email_exists(request: Request, exception: UserEmailExistsException):
+    return JSONResponse(status_code = 404,
+                 content = f"{exception.user_email} User Already Exists")
+
+@app.exception_handler(InvalidInputException)
+def invalid_input(request: Request, exception: InvalidInputException):
+    print(f"Invalid Input: {exception.message}")
+    return JSONResponse(
+        status_code = 401,
+        content = f"{exception.message}")
+
+@app.exception_handler(TokenException)
+def token_error(request: Request, exception: TokenException):
+    return JSONResponse(
+        status_code = 499,
+        content = f"{exception.message}")
+
+@app.get("/")
+def home():
+    return "Welcome!"
+
+@app.post("/api/signup")
+def user_signup(user_token_data: Annotated[dict, Depends(sign_up)]):
+    if not user_token_data:
+        raise NotFoundException("User")
+    return user_token_data
+
+@app.post("/api/signin")
+def user_signin(user_token_data: Annotated[dict, Depends(sign_in)]):
+    print(f"user_form_data: {user_token_data}")
+    return user_token_data
+    # if not user_form_data:
+    #     raise NotFoundException("User")

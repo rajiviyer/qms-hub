@@ -1,2 +1,7 @@
 fastapi[all]
-uvicorn
+sqlmodel
+psycopg2-binary
+python-jose[cryptography]
+types-python-jose
+passlib[bcrypt]
+bcrypt==4.0.1
