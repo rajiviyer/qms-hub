@@ -33,7 +33,7 @@ export default function CreateCAR() {
         },
         {
             id: 4,
-            name: "Validate CA Need"
+            name: "Validate Corrective Action (CA) Need"
         },
         {
             id: 5,
@@ -41,9 +41,24 @@ export default function CreateCAR() {
         },     
         {
             id: 6,
-            name: "Corrective Action Plan"
-        },               
-  
+            name: "Corrective Action (CA) Plan"
+        },
+        {
+            id: 7,
+            name: "Update QMS Process Risks & Opportunities"
+        },                             
+        {
+            id: 8,
+            name: "Update QMS Documentation"
+        },                             
+        {
+            id: 9,
+            name: "Personnel Training Needs"
+        },
+        {
+            id: 10,
+            name: "Corrective Action (CA) Effectiveness Plan"
+        },                                    
       ];
 
       const checkStatus = () => {
@@ -71,6 +86,22 @@ export default function CreateCAR() {
         if (activeIndex == 5) { 
             return false;
         } 
+
+        if (activeIndex == 6) { 
+            return false;
+        } 
+        
+        if (activeIndex == 7) { 
+            return false;
+        } 
+        
+        if (activeIndex == 8) { 
+            return false;
+        } 
+        
+        if (activeIndex == 9) { 
+            return false;
+        }         
         
         return true;
       };
@@ -111,7 +142,7 @@ export default function CreateCAR() {
                 >
                     Previous
                 </Button>
-                {activeIndex < 5 && (
+                {activeIndex < 9 && (
                     <Button
                     className="text-primary"
                     disabled={checkStatus()}
@@ -120,13 +151,13 @@ export default function CreateCAR() {
                     Next
                     </Button>
                 )}
-                {activeIndex === 5 && (
+                {activeIndex === 9 && (
                     <Button
                     className="text-primary"
                     disabled={checkStatus()}
-                    onClick={() => console.log("Generating CAR")}
+                    onClick={() => console.log("Completing CAR")}
                     >
-                    Generate CAR
+                    Submit
                     </Button>
                 )}
             </div>

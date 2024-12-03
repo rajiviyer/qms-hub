@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function RootCauseAnalysis() {
-    const rowHeaders = ["MAN", "MACHINE", "MATERIAL", "METHODS", "ENVIRONMENT"];
+    const rowHeaders = ["PEOPLE", "MACHINE", "MATERIAL", "METHODS", "ENVIRONMENT"];
     const columnHeaders = ["WHY 1", "WHY 2", "WHY 3", "WHY 4", "WHY 5"];
   
     const [gridData, setGridData] = useState(
@@ -26,7 +26,7 @@ export default function RootCauseAnalysis() {
           <thead>
             <tr>
               <th className="border border-gray-300 px-2 py-2 bg-gray-100 font-semibold">
-                Root Cause
+                Category
               </th>
               {columnHeaders.map((header, index) => (
                 <th

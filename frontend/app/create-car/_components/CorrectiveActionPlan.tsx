@@ -27,7 +27,7 @@ export default function CorrectiveActionPlan() {
         <thead>
           <tr>
             <th className="border border-gray-300 px-2 py-2 bg-gray-100 font-semibold">
-              CAP
+              Root Cause(s)
             </th>
             {columnHeaders.map((header, index) => (
               <th

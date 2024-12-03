@@ -50,7 +50,7 @@ export default function ValidateCANeed() {
       <div className="px-10 md:px-20 lg:px-44">
         <div className="grid grid-cols-2 gap-4">   
           <div>
-            <label className="text-sm font-bold">📑CA Needed by Customer/Third Party</label>
+            <label className="text-sm font-bold">📑CA Needed</label>
             <Select
                 defaultValue={values.ca_needed}
                 onValueChange={(value) => handleInputChange("ca_needed", value)}
@@ -65,18 +65,18 @@ export default function ValidateCANeed() {
             </Select>
           </div>
           <div>
-              <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
+              <label className="text-sm font-bold">⚡Needed by</label>
               <Input
-                  type="number"
+                  type="text"
                   min={1}
                   max={10}
                   className="text-xl"
-                  placeholder="Enter Occurrence value (1-10)"
+                  placeholder="Enter Who Needs CA"
                   onChange={(event) =>
-                  handleInputChange("occurrence", event.target.value)
+                  handleInputChange("needed_by", event.target.value)
                   }
               />
-          </div>
+          </div>          
           <div>
               <label className="text-sm font-bold">❗Severity</label>
               <Input
@@ -87,6 +87,19 @@ export default function ValidateCANeed() {
                   placeholder="Enter Severity value (1-10)"
                   onChange={(event) =>
                   handleInputChange("severity", event.target.value)
+                  }
+              />
+          </div>
+          <div>
+              <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
+              <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  className="text-xl"
+                  placeholder="Enter Occurrence value (1-10)"
+                  onChange={(event) =>
+                  handleInputChange("occurrence", event.target.value)
                   }
               />
           </div>

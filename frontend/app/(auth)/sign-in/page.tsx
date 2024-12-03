@@ -42,7 +42,7 @@ export default function SignIn() {
                     expires: access_expiration_time
                 });
 
-                router.push("/dashboard");   // Redirect to Home page
+                router.push("/landing");   // Redirect to Home page
             }
             else {
                 const errorData = await response.json();
@@ -78,8 +78,8 @@ export default function SignIn() {
                     placeholder="Password.."
                     className="rounded-md border p-1.5"
                 />
-                <Button className="bg-primary text-black" asChild>
-                    <Link href="/landing">Sign In</Link>
+                <Button type="submit" className="bg-primary text-black hover:text-white">
+                    Sign In
                 </Button>
             </form>
             <h1 className="md:text-xl font m-2">
