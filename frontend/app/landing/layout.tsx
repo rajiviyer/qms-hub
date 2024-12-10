@@ -6,7 +6,7 @@ import { User } from "@/configs/schema";
 
 
 export default function LandingPageLayout({children}: {children: React.ReactNode}) {
-  const [user, setUser] = useState<User>({user_email: "", user_name: ""});
+  const [user, setUser] = useState<User>({user_email: "", user_name: "", organization: ""});
   useEffect(() => {
     // Function to get a cookie value by name
     const getCookieValue = (name: string) => {
@@ -25,6 +25,7 @@ export default function LandingPageLayout({children}: {children: React.ReactNode
     const userDetails: User = {
       user_email: getCookieValue("user_email"),
       user_name: getCookieValue("user_name"),
+      organization: ""
     }
 
     console.log("User details from cookies:", userDetails);

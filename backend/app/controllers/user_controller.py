@@ -25,6 +25,7 @@ def sign_up(user_token_data: SignUpModel,
     user_name = user_token_data.user_name
     user_email = user_token_data.user_email
     user_passwd = user_token_data.user_passwd
+    organization = user_token_data.organization
     user_exists = \
         session.exec(
             select(User).\
@@ -37,7 +38,9 @@ def sign_up(user_token_data: SignUpModel,
         hashed_passwd = hash_password(user_passwd)
         user = User(user_name = user_name,
                     user_email = user_email,
-                    user_passwd = hashed_passwd)
+                    user_passwd = hashed_passwd,
+                    organization = organization
+                    )
         session.add(user)
         session.commit()
         session.refresh(user)
@@ -102,18 +105,29 @@ def sign_in(user_login_form: LoginModel,
     except Exception as e:
         raise e
 
-def get_user(token: Annotated[str, Depends(oauth2_scheme)],
+# def get_user(token: Annotated[str, Depends(oauth2_scheme)],
+#              session: Annotated[Session, Depends(get_session)]):
+#     if token:
+#         try:
+#             decoded_data = decode_token(token)
+#             user_email = decoded_data["user_email"]
+#             user = session.exec(
+#                 select(User).\
+#                     where(User.user_email == user_email)
+#                 ).one()
+#             return user
+#         except:
+#             raise NotFoundException("User")
+#     else:
+#         raise NotFoundException("User")
+
+def retrieve_user_details(user_email: str,
              session: Annotated[Session, Depends(get_session)]):
-    if token:
-        try:
-            decoded_data = decode_token(token)
-            user_email = decoded_data["user_email"]
-            user = session.exec(
-                select(User).\
-                    where(User.user_email == user_email)
-                ).one()
-            return user
-        except:
-            raise NotFoundException("Token")
-    else:
-        raise NotFoundException("Token")
+    try:
+        user = session.exec(
+            select(User).\
+                where(User.user_email == user_email)
+            ).one()
+        return user
+    except:
+        raise NotFoundException("User")

@@ -46,7 +46,7 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=root
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./qmsdb:/var/lib/postgresql/data:rw
     networks:
       - qms-hub-app-network

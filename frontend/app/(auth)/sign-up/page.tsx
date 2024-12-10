@@ -34,7 +34,7 @@ export default function Register() {
                 refresh_expiration_time.setSeconds(refresh_expiration_time.getSeconds() + refresh_token.expiry_time); 
                 // console.log(access_expiration_time);
                 setMessageType('success');
-                setMessage('Login successful!');
+                setMessage('Sign Up successful!');
                 setCookie("access_token", access_token.token, {
                     expires: access_expiration_time
                 });
@@ -89,6 +89,11 @@ export default function Register() {
                     placeholder="Username.."
                     className="rounded-md border p-1.5"
                 />
+                <input
+                    {...register("organization", {required: true})}
+                    placeholder="Organization.."
+                    className="rounded-md border p-1.5"
+                />                
                 <div className="flex justify-center items-center gap-4">
                     {/* <Link href="/sign-in">
                         <Button className="bg-primary text-black">

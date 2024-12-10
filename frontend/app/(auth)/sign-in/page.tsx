@@ -46,6 +46,7 @@ export default function SignIn() {
             }
             else {
                 const errorData = await response.json();
+                console.log(errorData);
                 setMessageType('error');
                 setMessage(errorData);
             }
@@ -81,6 +82,11 @@ export default function SignIn() {
                 <Button type="submit" className="bg-primary text-black hover:text-white">
                     Sign In
                 </Button>
+                {message && (
+                <p style={{ color: messageType === 'error' ? 'red' : 'green' }}>
+                {message}
+                </p>
+                )}                
             </form>
             <h1 className="md:text-xl font m-2">
                 Don't have an account?

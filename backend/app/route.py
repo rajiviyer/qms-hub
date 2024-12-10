@@ -3,15 +3,15 @@ from typing import Annotated, List
 from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
-from fastapi.security import OAuth2PasswordRequestForm
+# from fastapi.security import OAuth2PasswordRequestForm
 from .db.db_connector import get_session, create_table
 from contextlib import asynccontextmanager
 from .db_models.admin_models import Admin
-from .db_models.user_models import User, Token
+from .db_models.user_models import User, Token, Employee
 from .utils.exceptions import (
     NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
     )
-from .controllers.user_controller import sign_up, sign_in
+from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
 
 
 @asynccontextmanager
@@ -71,3 +71,8 @@ def user_signin(user_token_data: Annotated[dict, Depends(sign_in)]):
     return user_token_data
     # if not user_form_data:
     #     raise NotFoundException("User")
+
+@app.post("/api/getuser")
+def get_user(user: Annotated[dict, Depends(retrieve_user_details)]):
+    print("user: ", user)
+    return user

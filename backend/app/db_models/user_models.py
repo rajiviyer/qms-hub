@@ -7,6 +7,7 @@ class LoginModel(SQLModel):
 
 class SignUpModel(LoginModel):
     user_name: str
+    organization: str
 
 class User(SignUpModel, table=True):
     user_id: Optional[int] = Field(None, primary_key=True)
@@ -16,3 +17,11 @@ class Token(SQLModel, table=True):
     token_id: Optional[int] = Field(None, primary_key=True)
     user_id: int = Field(int, foreign_key="user.user_id")
     refresh_token: str
+    
+class Employee(SQLModel, table=True):
+    employee_id: Optional[int] = Field(None, primary_key=True)
+    employee_name: str
+    employee_email: str
+    employee_password: str
+    organization: str
+        
