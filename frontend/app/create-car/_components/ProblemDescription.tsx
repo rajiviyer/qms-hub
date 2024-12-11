@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -10,35 +10,45 @@ import {
   } from "@/components/ui/select";
 
 import { Textarea } from "@/components/ui/textarea";
-import { CARProblemDesc, CARPlanningPhase } from '@/configs/schema';
+// import { CARProblemDesc } from '@/configs/schema';
+import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
 
-export default function ProblemDescription() {
-    const lacc_phase = "Look Across, Correct, Contain";
-    const ca_phase = "Corrective Action (CA) Implementation";
-    const [CARProblemDescInput, setCARProblemDescInput] = useState<CARProblemDesc>({});
-    const [CARPlanningPhaseInput, setCARPlanningPhaseInput] = useState<CARPlanningPhase>(
-        {"lacc_phase": lacc_phase, "ca_phase": ca_phase}
-    );
-    const handleInputChange = (fieldName: string, value: string) => {
-        if (fieldName.includes("lacc_") || fieldName.includes("ca_")) {
-            setCARProblemDescInput((prev) => {
-                return {
-                    ...prev,
-                    [fieldName]: value,
-                };
-            });
-        }
-        else {
-            setCARPlanningPhaseInput((prev) => {
-                return {
-                    ...prev,
-                    [fieldName]: value,
-                };
-            });            
-        };
-        console.log(`CARProblemDescInput: ${JSON.stringify(CARProblemDescInput)}`);
-        console.log(`CARPlanningPhaseInput: ${JSON.stringify(CARPlanningPhaseInput)}`);
+export default function ProblemDescription(
+    {
+        registerSubmitHandler,
+        currentPageIndex}: 
+    {
+        registerSubmitHandler: (handler: () => Promise<boolean>, index: number) => void;
+        currentPageIndex: number;
+    }) 
+    {
+    const carProblemDescContext = useContext(CARProblemDescContext);
+    if (!carProblemDescContext) {
+      throw new Error('carProblemDescContext is not available');
     }
+    // const [ carProblemDesc, setCarProblemDesc ] = carProblemDescContext;
+    const { carProblemDesc, updateCARProblemDesc, submitCARProblemDesc } = carProblemDescContext;
+
+    useEffect(() => {
+        registerSubmitHandler(()=>submitCARProblemDesc(), 0); // Register handler for page index 0
+    }, [registerSubmitHandler]);
+
+    // const lacc_phase = "Look Across, Correct, Contain";
+    // const ca_phase = "Corrective Action (CA) Implementation";
+    // const [CARProblemDescInput, setCARProblemDescInput] = useState<CARProblemDesc>({});
+    // const [CARPlanningPhaseInput, setCARPlanningPhaseInput] = useState<CARPlanningPhase>(
+    //     {"lacc_phase": lacc_phase, "ca_phase": ca_phase}
+    // );
+    const handleInputChange = (fieldName: string, value: string) => {
+        updateCARProblemDesc(fieldName as keyof typeof carProblemDesc, value);
+        // setCarProblemDesc((prev) => {
+        //     return {
+        //         ...prev,
+        //         [fieldName]: value,
+        //     };
+        // });
+        console.log(`carProblemDesc: ${JSON.stringify(carProblemDesc)}`);
+    };
   return (
     <div>
         <div className="px-10 md:px-20 lg:px-44">        
@@ -47,6 +57,7 @@ export default function ProblemDescription() {
                     <label className="text-sm font-bold">🎚️CAR #</label>
                     <Input
                         type="text"
+                        defaultValue={carProblemDesc?.car_number}
                         className="text-xl"
                         placeholder={"Enter CAR Number"}
                         onChange={(event) =>
@@ -148,7 +159,7 @@ export default function ProblemDescription() {
                                 <tbody>
                                     <tr key={1} className="border border-gray-300">
                                         <td className="text-center border border-gray-300">
-                                            <label className="text-sm font-bold">{lacc_phase}</label>
+                                            <label className="text-sm font-bold">{carProblemDesc.lacc_phase}</label>
                                         </td>
                                         <td className="border border-gray-300">
                                             <Input
@@ -171,7 +182,7 @@ export default function ProblemDescription() {
                                     </tr>
                                     <tr key={2} className="border border-gray-300">
                                         <td className="text-center border border-gray-300">
-                                            <label className="text-sm font-bold">{ca_phase}</label>
+                                            <label className="text-sm font-bold">{carProblemDesc.ca_phase}</label>
                                         </td>
                                         <td className="border border-gray-300">
                                             <Input

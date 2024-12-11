@@ -16,7 +16,7 @@ export interface SignInType {
     organization: string;
   }
 
-  export type CARProblemDesc = {
+  export interface CARProblemDesc {
     car_number?: number;
     initiation_date?: Date;
     initiator?: string;
@@ -24,14 +24,10 @@ export interface SignInType {
     coordinator?: string;
     source?: string;
     description?: string;
-  };
-
-  export type CARPlanningPhase = {
-    car_number?: number;
     lacc_phase?: string;
     lacc_responsibility?: string;
     lacc_target_date?: Date;
     ca_phase?: string;
     ca_responsibility?: string;
-    ca_target_date?: Date;
-  }
+    ca_target_date?: Date;    
+  };

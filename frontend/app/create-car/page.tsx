@@ -11,12 +11,36 @@ import CorrectiveActionPlan from './_components/CorrectiveActionPlan';
 
 export default function CreateCAR() {
     const [activeIndex, setActiveIndex] = useState(0);
-    console.log(`Active Index value: ${activeIndex}`);
-    
 
-    useEffect(() => {
-        // console.log(userCourseInput);
-      }, []);
+    // Register submission handlers for each page
+    const [submitHandlers, setSubmitHandlers] = useState<(() => Promise<boolean>)[]>([]);    
+    
+    console.log(`Active Index value: ${activeIndex}`);
+
+
+    // Register a handler for the current form
+    const registerSubmitHandler = (handler: () => Promise<boolean>, index: number) => {
+        setSubmitHandlers((prev) => {
+            const updated = [...prev];
+            updated[index] = handler;
+            return updated;
+        });
+    };
+
+   // Handle the Next button click
+   const handleNext = async () => {
+        const handler = submitHandlers[activeIndex];
+        if (handler) {
+            const success = await handler();
+            if (success) {
+                setActiveIndex(activeIndex + 1);
+            }
+        }
+        // setActiveIndex(activeIndex + 1);
+    } 
+    // useEffect(() => {
+    //     // console.log(userCourseInput);
+    //   }, []);
     
     const StepperOptions = [
         {
@@ -121,7 +145,8 @@ export default function CreateCAR() {
         <div className="px-10 md:px-20 lg:px-44 mt-7">
             {
                 activeIndex === 0 ? (
-                    <ProblemDescription />
+                    <ProblemDescription  registerSubmitHandler={registerSubmitHandler} currentPageIndex={activeIndex}/>
+                    // <ProblemDescription />
                 ) : activeIndex === 1 ? (
                     <LookAcross />
                 ) : activeIndex === 2 ? (
@@ -149,7 +174,8 @@ export default function CreateCAR() {
                     <Button
                     className="text-primary"
                     disabled={checkStatus()}
-                    onClick={() => setActiveIndex(activeIndex + 1)}
+                    // onClick={() => setActiveIndex(activeIndex + 1)}
+                    onClick={handleNext}
                     >
                     Next
                     </Button>
