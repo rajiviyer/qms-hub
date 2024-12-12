@@ -31,7 +31,7 @@ export default function ProblemDescription(
 
     useEffect(() => {
         registerSubmitHandler(()=>submitCARProblemDesc(), 0); // Register handler for page index 0
-    }, [registerSubmitHandler]);
+    }, []);
 
     // const lacc_phase = "Look Across, Correct, Contain";
     // const ca_phase = "Corrective Action (CA) Implementation";
@@ -47,7 +47,9 @@ export default function ProblemDescription(
         //         [fieldName]: value,
         //     };
         // });
-        console.log(`carProblemDesc: ${JSON.stringify(carProblemDesc)}`);
+        // console.log(`carProblemDesc: ${JSON.stringify(carProblemDesc)}`);
+        console.log(`car_number: ${carProblemDesc?.car_number}`);
+        
     };
   return (
     <div>

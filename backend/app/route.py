@@ -8,10 +8,12 @@ from .db.db_connector import get_session, create_table
 from contextlib import asynccontextmanager
 from .db_models.admin_models import Admin
 from .db_models.user_models import User, Token, Employee
+from .db_models.car_models import CARProblemDesc, CARPlanningPhase
 from .utils.exceptions import (
     NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
     )
 from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
+from .controllers.car_controller import add_car_problem_desc
 
 
 @asynccontextmanager
@@ -76,3 +78,8 @@ def user_signin(user_token_data: Annotated[dict, Depends(sign_in)]):
 def get_user(user: Annotated[dict, Depends(retrieve_user_details)]):
     print("user: ", user)
     return user
+
+@app.post("/api/add_car_problem_desc")
+def add_car_problem_desc(car_problem_desc: Annotated[dict, Depends(add_car_problem_desc)]):
+    print(f"car_problem_desc: {car_problem_desc}")
+    return car_problem_desc

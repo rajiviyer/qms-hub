@@ -4,6 +4,7 @@ import os
 
 class Settings(BaseSettings):
     DB_URL: str
+    DB_SCHEMA: str
     SECRET_KEY: str
     ACCESS_EXPIRY_TIME: int
     REFRESH_EXPIRY_TIME: int
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 DB_URL = settings.DB_URL
+DB_SCHEMA = settings.DB_SCHEMA
 SECRET_KEY = settings.SECRET_KEY
 ACCESS_EXPIRY_TIME = timedelta(minutes=settings.ACCESS_EXPIRY_TIME).total_seconds()
 REFRESH_EXPIRY_TIME = timedelta(days=settings.REFRESH_EXPIRY_TIME).total_seconds()

@@ -3,6 +3,7 @@ from ..controllers.auth_controller import (
     decode_token, verify_password
 )
 from ..db_models.user_models import User, Token, LoginModel, SignUpModel
+from ..utils.types import UserEmail
 from ..db.db_connector import get_session
 from ..utils.exceptions import (
     UserEmailExistsException, InvalidInputException,
@@ -105,8 +106,8 @@ def sign_in(user_login_form: LoginModel,
     except Exception as e:
         raise e
 
-# def get_user(token: Annotated[str, Depends(oauth2_scheme)],
-#              session: Annotated[Session, Depends(get_session)]):
+# def retrieve_user_details(token: Annotated[str, Depends(oauth2_scheme)],
+#              session: DBSession):
 #     if token:
 #         try:
 #             decoded_data = decode_token(token)
@@ -121,12 +122,13 @@ def sign_in(user_login_form: LoginModel,
 #     else:
 #         raise NotFoundException("User")
 
-def retrieve_user_details(user_email: str,
-             session: Annotated[Session, Depends(get_session)]):
+def retrieve_user_details(user_email: UserEmail,
+             session: DBSession):
     try:
+        print(f"user_email: {user_email}")
         user = session.exec(
             select(User).\
-                where(User.user_email == user_email)
+                where(User.user_email == user_email.user_email)
             ).one()
         return user
     except:
