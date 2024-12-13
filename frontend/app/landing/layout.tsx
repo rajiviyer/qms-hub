@@ -7,11 +7,11 @@ import { UserContextProvider } from "@/app/_context/UserContext";
 
 export default function LandingPageLayout({children}: {children: React.ReactNode}) {
   return (
-      <div>
         <UserContextProvider>
-          <Header />
-          <div className="p-10">{children}</div>
+          <div>
+            <Header />
+            <div className="p-10">{children}</div>
+          </div>
         </UserContextProvider>
-      </div>
   )
 }

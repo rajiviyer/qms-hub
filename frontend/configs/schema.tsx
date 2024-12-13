@@ -32,6 +32,6 @@ export interface CARProblemDesc {
   ca_target_date?: Date;    
 };
 
-  export interface UserEmail {
-    user_email: string
-  }
+export interface UserEmail {
+  user_email: string;
+};

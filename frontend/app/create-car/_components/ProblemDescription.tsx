@@ -20,7 +20,8 @@ export default function ProblemDescription(
     {
         registerSubmitHandler: (handler: () => Promise<boolean>, index: number) => void;
         currentPageIndex: number;
-    }) 
+    }
+    ) 
     {
     const carProblemDescContext = useContext(CARProblemDescContext);
     if (!carProblemDescContext) {

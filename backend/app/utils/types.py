@@ -10,7 +10,7 @@ class TokenType(TypedDict):
     refresh_expiry_time: int;
     
 class UserEmail(TypedDict):
-    user_email: str
+    user_email: str;
     
 class CARProblemDesc(TypedDict):
     car_number: int;

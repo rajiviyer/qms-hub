@@ -128,7 +128,7 @@ def retrieve_user_details(user_email: UserEmail,
         print(f"user_email: {user_email}")
         user = session.exec(
             select(User).\
-                where(User.user_email == user_email.user_email)
+                where(User.user_email == user_email["user_email"])
             ).one()
         return user
     except:
