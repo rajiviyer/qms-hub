@@ -1,7 +1,7 @@
 from typing_extensions import TypedDict
 from typing import List
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import date
 
 class TokenType(TypedDict):
     user_name: str;
@@ -12,9 +12,9 @@ class TokenType(TypedDict):
 class UserEmail(TypedDict):
     user_email: str;
     
-class CARProblemDesc(TypedDict):
-    car_number: int;
-    initiation_date: datetime;
+class CARProblemDescForm(TypedDict):
+    car_number: str;
+    initiation_date: date;
     initiator: str;
     recipient: str;
     coordinator: str;
@@ -22,7 +22,7 @@ class CARProblemDesc(TypedDict):
     description: str;
     lacc_phase: str;
     lacc_responsibility: str;
-    lacc_target_date: datetime;
+    lacc_target_date: date;
     ca_phase: str;
     ca_responsibility: str;
-    ca_target_date: datetime;
+    ca_target_date: date;

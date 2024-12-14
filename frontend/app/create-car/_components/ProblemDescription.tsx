@@ -48,7 +48,7 @@ export default function ProblemDescription(
         //         [fieldName]: value,
         //     };
         // });
-        // console.log(`carProblemDesc: ${JSON.stringify(carProblemDesc)}`);
+        console.log(`carProblemDesc: ${JSON.stringify(carProblemDesc)}`);
         console.log(`car_number: ${carProblemDesc?.car_number}`);
         
     };
@@ -73,7 +73,7 @@ export default function ProblemDescription(
                     <Input
                         type="date"
                         onChange={(event) =>
-                        handleInputChange("car_date", event.target.value)
+                        handleInputChange("initiation_date", event.target.value)
                         }
                     />
                 </div>
@@ -106,14 +106,14 @@ export default function ProblemDescription(
                         className="text-xl"
                         placeholder={"Enter Coordinator Name"}
                         onChange={(event) =>
-                        handleInputChange("recipient", event.target.value)
+                        handleInputChange("coordinator", event.target.value)
                         }
                     />
                 </div> 
                 <div>
                     <label className="text-sm font-bold">🧩CAR Source</label>
                     <Select
-                        onValueChange={(value) => handleInputChange("type", value)}
+                        onValueChange={(value) => handleInputChange("source", value)}
                     >
                         <SelectTrigger className="">
                         <SelectValue placeholder="Select" />

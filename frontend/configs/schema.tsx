@@ -17,7 +17,7 @@ export interface User {
 }
 
 export interface CARProblemDesc {
-  car_number?: number;
+  car_number?: string;
   initiation_date?: Date;
   initiator?: string;
   recipient?: string;
