@@ -17,3 +17,7 @@ class UserEmailExistsException(Exception):
 class TokenException(Exception):
     def __init__(self, message: str):
         self.message = message
+        
+class CARNumberExistsException(Exception):
+    def __init__(self, message: str):
+        self.message = message       

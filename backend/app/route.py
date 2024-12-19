@@ -13,21 +13,21 @@ from .utils.exceptions import (
     NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
     )
 from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
-from .controllers.car_controller import add_car_problem_desc_pphase
+from .controllers.car_controller import retrieve_car_problem_desc, add_car_problem_desc_pphase
 
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     print("Creating Tables..")
-#     create_table()
-#     yield
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Creating Tables..")
+    create_table()
+    yield
 
-# app = FastAPI(lifespan=lifespan)
-app = FastAPI(
-    title = "Backend API",
-    version = "1.0.0",
-    description = "Backend API for Audit Planning and Coordination Tool"
-    )
+app = FastAPI(lifespan=lifespan)
+# app = FastAPI(
+#     title = "Backend API",
+#     version = "1.0.0",
+#     description = "Backend API for Audit Planning and Coordination Tool"
+#     )
 
 # Middleware for CORS
 app.add_middleware(
@@ -88,3 +88,8 @@ def get_user(user: Annotated[dict, Depends(retrieve_user_details)]):
 def add_car_problem_desc(message: Annotated[str, Depends(add_car_problem_desc_pphase)]):
     print(f"message: {message}")
     return message
+
+@app.post("/api/get_problem_desc")
+def get_problem_desc(problem_desc: Annotated[dict, Depends(retrieve_car_problem_desc)]):
+    print("problem_desc: ", problem_desc)
+    return problem_desc

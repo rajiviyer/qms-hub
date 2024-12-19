@@ -56,7 +56,7 @@ export default function Welcome() {
         </p>
       </div>
       <Link href="/create-car">
-        <Button className="bg-primary text-black">+ Create CAR</Button>
+        <Button className="bg-primary text-black hover:text-primary">+ Create CAR</Button>
       </Link>
     </div>
   );

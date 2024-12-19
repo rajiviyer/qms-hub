@@ -8,7 +8,12 @@ export default function CreateCARLayout({children}: {children: React.ReactNode})
       <CARProblemDescContextProvider>
         <div>
           <Header />
-          {children}
+          <h2 className="text-4xl text-primary font-medium text-center mt-10">
+                Corrective Action Request (CAR)
+          </h2>          
+          <div className="px-10 md:px-20 lg:px-44 mt-7">
+            {children}
+          </div>
         </div>
       </CARProblemDescContextProvider>
   )
