@@ -32,6 +32,14 @@ export interface CARProblemDesc {
   ca_target_date?: Date;    
 };
 
+export interface CARProblemRedef {
+  car_number: string;
+  redefined_problem: string;
+  correction: string;
+  containment: string;
+  corr_cont_date: Date;
+};
+
 export interface UserEmail {
   user_email: string;
 };

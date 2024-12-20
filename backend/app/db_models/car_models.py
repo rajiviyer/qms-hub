@@ -43,3 +43,16 @@ class CARProblemDescForm(SQLModel):
     ca_phase: str;
     ca_responsibility: str;
     ca_target_date: date;        
+    
+class CARProblemRedef(SQLModel, table=True):
+    __tablename__ = "car_problem_redefinition"
+    __table_args__ = (
+        PrimaryKeyConstraint('car_number', name='car_problem_redefinition_pk'),
+    )
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    redefined_problem: str
+    correction: str
+    containment: str
+    corr_cont_date: datetime
+    class Config:
+        schema = DB_SCHEMA   

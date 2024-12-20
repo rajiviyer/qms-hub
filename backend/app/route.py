@@ -13,7 +13,7 @@ from .utils.exceptions import (
     NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
     )
 from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
-from .controllers.car_controller import retrieve_car_problem_desc, add_car_problem_desc_pphase
+from .controllers.car_controller import retrieve_car_problem_desc, add_car_problem_desc_pphase, add_car_problem_redefinition
 
 
 @asynccontextmanager
@@ -86,6 +86,11 @@ def get_user(user: Annotated[dict, Depends(retrieve_user_details)]):
 
 @app.post("/api/add_car_problem_desc")
 def add_car_problem_desc(message: Annotated[str, Depends(add_car_problem_desc_pphase)]):
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/add_car_problem_redef")
+def add_car_problem_redef(message: Annotated[str, Depends(add_car_problem_redefinition)]):
     print(f"message: {message}")
     return message
 
