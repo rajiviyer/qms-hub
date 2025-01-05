@@ -48,7 +48,7 @@ export default function LookAcross() {
                     
                     if (/success/i.test(responseMessage)) {
                         setCarProblemRedef(data);
-                        router?.push('/ValidateCANeed');
+                        router?.push('/create-car/ValidateCANeed');
                     }
                     else {
                         setMessageType('error');

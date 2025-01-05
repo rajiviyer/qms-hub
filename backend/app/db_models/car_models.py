@@ -56,3 +56,19 @@ class CARProblemRedef(SQLModel, table=True):
     corr_cont_date: datetime
     class Config:
         schema = DB_SCHEMA   
+        
+class CARCANeed(SQLModel, table=True):
+    __tablename__ = "car_ca_need"
+    __table_args__ = (
+        PrimaryKeyConstraint('car_number', name='car_ca_need_pk'),
+    )
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    ca_required: str
+    required_by: str
+    comment: str
+    severity: int
+    occurrence: int
+    rpn: int
+    ca_needed: str
+    class Config:
+        schema = DB_SCHEMA

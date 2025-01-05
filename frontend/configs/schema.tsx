@@ -40,6 +40,17 @@ export interface CARProblemRedef {
   corr_cont_date: Date;
 };
 
+export interface CARCANeed {
+  car_number: string;
+  ca_required: string;
+  required_by: string;
+  comment: string;
+  severity: number;
+  occurrence: number;
+  rpn: number;
+  ca_needed: string;
+};
+
 export interface UserEmail {
   user_email: string;
 };

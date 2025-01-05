@@ -1,4 +1,4 @@
-from ..db_models.car_models import CARProblemDesc, CARPlanningPhase, CARProblemDescForm, CARProblemRedef
+from ..db_models.car_models import CARProblemDesc, CARPlanningPhase, CARProblemDescForm, CARProblemRedef, CARCANeed
 # from ..utils.types import CARProblemDescForm
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
@@ -64,6 +64,16 @@ def retrieve_car_problem_desc(car_number: str, session: DBSession):
         return car_problem_desc
     except:
         raise Exception("Failed to retrieve car problem description")
+    
+def add_car_ca_need(car_ca_need: CARCANeed, session: DBSession):
+    try:
+        session.add(car_ca_need)
+        session.commit()
+        return "Success"
+    except IntegrityError as e:
+        return "Error: CAR Number Already Exists"
+    except Exception as e:
+        return "Error: Failed to add car ca need"    
     
     
 def add_car_problem_redefinition(car_problem_redef: CARProblemRedef, session: DBSession):

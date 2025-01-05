@@ -8,7 +8,7 @@ from .db.db_connector import get_session, create_table
 from contextlib import asynccontextmanager
 from .db_models.admin_models import Admin
 from .db_models.user_models import User, Token, Employee
-from .db_models.car_models import CARProblemDesc, CARPlanningPhase
+from .db_models.car_models import CARProblemDesc, CARPlanningPhase, CARCANeed
 from .utils.exceptions import (
     NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
     )
