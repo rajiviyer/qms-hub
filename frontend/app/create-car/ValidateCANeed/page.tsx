@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from "next/navigation";
 import { CARCANeed } from '@/configs/schema';
 import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
-import { CARCANeedContext } from '@/app/_context/CARCANeedContext';
+// import { CARCANeedContext } from '@/app/_context/CARCANeedContext';
 
 const severityOptions = [
     {
@@ -120,14 +120,33 @@ export default function ValidateCANeed() {
     throw new Error('carProblemDescContext is not available');
     }
 
-    const carCANeedContext = useContext(CARCANeedContext);
-    if (!carCANeedContext) {
-    throw new Error('carCANeedContext is not available');
-    }
+    const [ carCANeed, setCarCANeed ] = useState<CARCANeed>(
+        {"car_number": "", "ca_required": "", "required_by": "", "comment":"", "severity": 1, "occurrence": 1, "rpn": 1, "ca_needed": ""}
+    )
 
-    const { carCANeed, setCarCANeed } = carCANeedContext;
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
     const car_number = carProblemDesc?.car_number;
+
+    useEffect(() => {
+        const car_number = carProblemDesc?.car_number;
+        if (car_number) {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_ca_need/${car_number}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data) {
+                    setCarCANeed(data);
+                }
+            });
+        }
+    }, [car_number]);    
+    // const carCANeedContext = useContext(CARCANeedContext);
+    // if (!carCANeedContext) {
+    // throw new Error('carCANeedContext is not available');
+    // }
+
+    // const { carCANeed, setCarCANeed } = carCANeedContext;
+    // const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
+    // const car_number = carProblemDesc?.car_number;
     const { register, handleSubmit, setValue, watch } = useForm<CARCANeed>({defaultValues: carCANeed});
     const url = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();    
@@ -168,42 +187,47 @@ export default function ValidateCANeed() {
         
     //     setValues(updatedValues);
     // };
+        
+    console.log(` ca_needed: ${watch("ca_needed")}`);
+    console.log(` severity_option: ${severityOptions[carCANeed.severity-1].severity}`);
+    
+        
 
-        const submitCARCANeed = async (data: CARCANeed) => {
-            try {
-                console.log(`carCANeed: ${JSON.stringify(data)}`);
+    const submitCARCANeed = async (data: CARCANeed) => {
+        try {
+            console.log(`carCANeed: ${JSON.stringify(data)}`);
 
-                const response = await fetch(`${url}/api/add_car_ca_need`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                });
+            const response = await fetch(`${url}/api/add_car_ca_need`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
 
-                if (response.ok) {
-                    const responseMessage = await response.json();
-                    // console.log(`Message: ${responseMessage}`);
-                    
-                    
-                    if (/success/i.test(responseMessage)) {
-                    setCarCANeed(data);
-                    setMessageType('success');
-                    setMessage(responseMessage);
-                    // router?.push('create-car/LookAcross');
-                    }
-                    else {
-                        setMessageType('error');
-                        setMessage(responseMessage);
-                    }
+            if (response.ok) {
+                const responseMessage = await response.json();
+                // console.log(`Message: ${responseMessage}`);
+                
+                
+                if (/success/i.test(responseMessage)) {
+                setCarCANeed(data);
+                setMessageType('success');
+                setMessage(responseMessage);
+                // router?.push('create-car/LookAcross');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                setMessageType('error');
-                setMessage('An error occurred. Please try again.');
+                else {
+                    setMessageType('error');
+                    setMessage(responseMessage);
+                }
             }
-        }    
+        } catch (error) {
+            console.error('Error:', error);
+            setMessageType('error');
+            setMessage('An error occurred. Please try again.');
+        }
+    }    
 
     const handlePrevious = () => {
-        router.push("/create-car/LookAcross");
+        router.push("/LookAcross");
     };   
 
   return (
@@ -267,7 +291,7 @@ export default function ValidateCANeed() {
                     <label className="text-sm font-bold">❗Severity</label>
                     <Select
                         onValueChange={(value) => setValue("severity", parseInt(value))}
-                        defaultValue={severityOptions[carCANeed.severity].severity}
+                        defaultValue={severityOptions[carCANeed.severity-1].severity}
                     >
                         <SelectTrigger className="">
                             <SelectValue placeholder="Select" />
@@ -338,7 +362,7 @@ export default function ValidateCANeed() {
                     <label className="text-sm font-bold">CA Required</label>
                     <Select 
                         onValueChange={(value) => setValue("ca_needed", value)}
-                        defaultValue={watch("ca_needed")} disabled>
+                        defaultValue={watch("ca_needed")}>
                         <SelectTrigger>
                             <SelectValue />
                         </SelectTrigger>

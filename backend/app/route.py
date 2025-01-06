@@ -1,6 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated, List
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 # from fastapi.security import OAuth2PasswordRequestForm
@@ -13,7 +13,8 @@ from .utils.exceptions import (
     NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
     )
 from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
-from .controllers.car_controller import retrieve_car_problem_desc, add_car_problem_desc_pphase, add_car_problem_redefinition
+from .controllers.car_controller import (retrieve_car_problem_desc, add_car_problem_desc_pphase, add_car_problem_redefinition, 
+                                         retrieve_car_problem_redefinition, retrieve_car_ca_need)
 
 
 @asynccontextmanager
@@ -98,3 +99,33 @@ def add_car_problem_redef(message: Annotated[str, Depends(add_car_problem_redefi
 def get_problem_desc(problem_desc: Annotated[dict, Depends(retrieve_car_problem_desc)]):
     print("problem_desc: ", problem_desc)
     return problem_desc
+
+@app.get("/api/get_problem_redef/{car_number}")
+def get_problem_redef(car_number: str):
+    """ 
+    End Point to retrieve Problem Redefinition (Look Across) Data from DB
+    """
+    try:
+        problem_redef = retrieve_car_problem_redefinition(car_number)
+        print("problem_redef: ", problem_redef)
+        if problem_redef:
+            return problem_redef
+        else:
+            return None
+    except Exception as e:
+        return None 
+
+@app.get("/api/get_car_ca_need/{car_number}")
+def get_car_ca_need(car_number: str):
+    """ 
+    End Point to retrieve CA Need Data from DB
+    """
+    try:
+        car_ca_need = retrieve_car_ca_need(car_number)
+        print("car_ca_need: ", car_ca_need)
+        if car_ca_need:
+            return car_ca_need
+        else:
+            return None
+    except Exception as e:
+        return None

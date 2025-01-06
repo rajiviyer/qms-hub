@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from "next/navigation";
 import { CARProblemRedef, CARProblemDesc } from '@/configs/schema';
 import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
-import { CARProblemRedefContext } from '@/app/_context/CARProblemRedefContext';
+// import { CARProblemRedefContext } from '@/app/_context/CARProblemRedefContext';
 
 export default function LookAcross() {
 
@@ -16,14 +16,32 @@ export default function LookAcross() {
     throw new Error('carProblemDescContext is not available');
     }
 
-    const carProblemRedefContext = useContext(CARProblemRedefContext);
-    if (!carProblemRedefContext) {
-    throw new Error('carProblemRedefContext is not available');
-    }
+    // const carProblemRedefContext = useContext(CARProblemRedefContext);
+    // if (!carProblemRedefContext) {
+    // throw new Error('carProblemRedefContext is not available');
+    // }
 
-    const { carProblemRedef, setCarProblemRedef } = carProblemRedefContext;
+    // const { carProblemRedef, setCarProblemRedef } = carProblemRedefContext;
+    const [ carProblemRedef, setCarProblemRedef ] = useState<CARProblemRedef>(
+        {"car_number": "", "redefined_problem": "", "correction": "", "containment": "", "corr_cont_date": new Date()}
+    )
+
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
     const car_number = carProblemDesc?.car_number;
+
+    useEffect(() => {
+        const car_number = carProblemDesc?.car_number;
+        if (car_number) {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_problem_redef/${car_number}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data) {
+                    setCarProblemRedef(data);
+                }
+            });
+        }
+    }, [car_number]);
+
     const { register, handleSubmit, } = useForm<CARProblemRedef>({defaultValues: carProblemRedef});
     const url = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();
