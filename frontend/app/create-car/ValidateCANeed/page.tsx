@@ -121,7 +121,10 @@ export default function ValidateCANeed() {
     }
 
     const [ carCANeed, setCarCANeed ] = useState<CARCANeed>(
-        {"car_number": "", "ca_required": "", "required_by": "", "comment":"", "severity": 1, "occurrence": 1, "rpn": 1, "ca_needed": ""}
+        {
+            "car_number": "", "ca_required": "", "required_by": "", 
+            "comment":"", "severity": 1, "occurrence": 1, 
+            "rpn": 1, "ca_needed": ""}
     )
 
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
@@ -227,7 +230,7 @@ export default function ValidateCANeed() {
     }    
 
     const handlePrevious = () => {
-        router.push("/LookAcross");
+        router.push("LookAcross");
     };   
 
   return (
@@ -240,7 +243,7 @@ export default function ValidateCANeed() {
                     {message}
                     </p>
         )}
-        <form action="">
+        <form onSubmit={handleSubmit(submitCARCANeed)}>
             <div className="px-10 md:px-20 lg:px-44">
             <div className="grid grid-cols-2 gap-4">   
                 <div>
@@ -291,7 +294,7 @@ export default function ValidateCANeed() {
                     <label className="text-sm font-bold">❗Severity</label>
                     <Select
                         onValueChange={(value) => setValue("severity", parseInt(value))}
-                        defaultValue={severityOptions[carCANeed.severity-1].severity}
+                        defaultValue={"1"}
                     >
                         <SelectTrigger className="">
                             <SelectValue placeholder="Select" />
@@ -321,7 +324,7 @@ export default function ValidateCANeed() {
                     <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
                     <Select
                         onValueChange={(value) => setValue("occurrence", parseInt(value))}
-                        defaultValue={occurrenceOptions[carCANeed.occurrence].occurrence}
+                        defaultValue={"1"}
                     >
                         <SelectTrigger className="">
                             <SelectValue placeholder="Select" />
@@ -362,7 +365,7 @@ export default function ValidateCANeed() {
                     <label className="text-sm font-bold">CA Required</label>
                     <Select 
                         onValueChange={(value) => setValue("ca_needed", value)}
-                        defaultValue={watch("ca_needed")}>
+                        defaultValue={"Yes"}>
                         <SelectTrigger>
                             <SelectValue />
                         </SelectTrigger>

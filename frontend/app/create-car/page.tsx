@@ -84,7 +84,7 @@ export default function ProblemDescription()
                     
                     if (/success/i.test(responseMessage)) {
                     setCarProblemDesc(data);
-                    router?.push('create-car/LookAcross');
+                    router?.push('/create-car/LookAcross');
                     }
                     else {
                         setMessageType('error');

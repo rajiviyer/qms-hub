@@ -100,12 +100,13 @@ def get_problem_desc(problem_desc: Annotated[dict, Depends(retrieve_car_problem_
     print("problem_desc: ", problem_desc)
     return problem_desc
 
-@app.get("/api/get_problem_redef/{car_number}")
+@app.get("/api/get_car_problem_redef/{car_number}")
 def get_problem_redef(car_number: str):
     """ 
     End Point to retrieve Problem Redefinition (Look Across) Data from DB
     """
     try:
+        print(f"In route.py- get_car_problem_redef, car_number: {car_number}")
         problem_redef = retrieve_car_problem_redefinition(car_number)
         print("problem_redef: ", problem_redef)
         if problem_redef:

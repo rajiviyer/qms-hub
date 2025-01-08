@@ -29,8 +29,13 @@ export default function LookAcross() {
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
     const car_number = carProblemDesc?.car_number;
 
+    console.log(`car number: ${car_number}`);
+    
+
     useEffect(() => {
         const car_number = carProblemDesc?.car_number;
+        console.log(`called useffect look across, car number: ${car_number}`);
+        
         if (car_number) {
             fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_problem_redef/${car_number}`)
             .then((response) => response.json())

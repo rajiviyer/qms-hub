@@ -162,11 +162,23 @@ def add_car_problem_redefinition(car_problem_redef: CARProblemRedef, session: DB
     
 def retrieve_car_problem_redefinition(car_number: str, session: DBSession):
     try:
+        print(f"retrieve_car_problem_redefinition - car_number: {car_number}")
         car_problem_redef = session.exec(
-            select(CARProblemRedef).\
-                where(CARProblemRedef.car_number == car_number)
+            select(CARProblemRedef)
+                # where(CARProblemRedef.car_number == car_number)
             ).one()
+        # car_problem_redef = session.exec(
+        #     text("""
+        #         SELECT
+        #             car_number, redefined_problem, correction, containment, corr_cont_date
+        #         FROM
+        #             car_problem_redefinition
+        #         WHERE
+        #             car_number = :car_number
+        #     """), {"car_number": car_number}    
+        #     ).one()
         return car_problem_redef
-    except:
+    except Exception as e:
+        print(f"Exception in retrieve_car_problem_redefinition: {e}")
         raise Exception("Failed to retrieve car problem redefinition")        
     # return car_problem_redef   
