@@ -37,7 +37,11 @@ export default function LookAcross() {
         console.log(`called useffect look across, car number: ${car_number}`);
         
         if (car_number) {
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_problem_redef/${car_number}`)
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_problem_redef`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({"car_number": car_number})
+            })
             .then((response) => response.json())
             .then((data) => {
                 if (data) {

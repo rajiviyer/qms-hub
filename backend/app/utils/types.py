@@ -12,6 +12,9 @@ class TokenType(TypedDict):
 class UserEmail(TypedDict):
     user_email: str;
     
+class CarNumber(TypedDict):
+    car_number: str
+    
 class CARProblemDescForm(TypedDict):
     car_number: str;
     initiation_date: date;

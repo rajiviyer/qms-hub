@@ -100,33 +100,16 @@ def get_problem_desc(problem_desc: Annotated[dict, Depends(retrieve_car_problem_
     print("problem_desc: ", problem_desc)
     return problem_desc
 
-@app.get("/api/get_car_problem_redef/{car_number}")
-def get_problem_redef(car_number: str):
+@app.get("/api/get_car_problem_redef")
+def get_car_problem_redef(problem_redef: Annotated[dict, Depends(retrieve_car_problem_redefinition)]):
     """ 
     End Point to retrieve Problem Redefinition (Look Across) Data from DB
     """
-    try:
-        print(f"In route.py- get_car_problem_redef, car_number: {car_number}")
-        problem_redef = retrieve_car_problem_redefinition(car_number)
-        print("problem_redef: ", problem_redef)
-        if problem_redef:
-            return problem_redef
-        else:
-            return None
-    except Exception as e:
-        return None 
+    return problem_redef
 
-@app.get("/api/get_car_ca_need/{car_number}")
-def get_car_ca_need(car_number: str):
+@app.get("/api/get_car_ca_need")
+def get_car_ca_need(car_ca_need: Annotated[dict, Depends(retrieve_car_ca_need)]):
     """ 
     End Point to retrieve CA Need Data from DB
     """
-    try:
-        car_ca_need = retrieve_car_ca_need(car_number)
-        print("car_ca_need: ", car_ca_need)
-        if car_ca_need:
-            return car_ca_need
-        else:
-            return None
-    except Exception as e:
-        return None
+    return car_ca_need 

@@ -54,3 +54,7 @@ export interface CARCANeed {
 export interface UserEmail {
   user_email: string;
 };
+
+export interface CarNumber {
+  car_number: string;
+};

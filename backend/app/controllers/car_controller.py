@@ -1,5 +1,6 @@
 from ..db_models.car_models import CARProblemDesc, CARPlanningPhase, CARProblemDescForm, CARProblemRedef, CARCANeed
 # from ..utils.types import CARProblemDescForm
+from ..utils.types import CarNumber
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import text
@@ -123,14 +124,15 @@ def add_car_ca_need(car_ca_need: CARCANeed, session: DBSession):
     except Exception as e:
         return "Error: Failed to add car ca need"    
     
-def retrieve_car_ca_need(car_number: str, session: DBSession):
+def retrieve_car_ca_need(car_number: CarNumber, session: DBSession):
     try:
         car_ca_need = session.exec(
             select(CARCANeed).\
                 where(CARCANeed.car_number == car_number)
             ).one()
         return car_ca_need
-    except:
+    except Exception as e:
+        print(f"Exception in retrieve_car_ca_need: {e}")
         raise Exception("Failed to retrieve car ca need")
     
     
@@ -160,12 +162,12 @@ def add_car_problem_redefinition(car_problem_redef: CARProblemRedef, session: DB
     except Exception as e:
         return "Error: Failed to add car problem redefinition"
     
-def retrieve_car_problem_redefinition(car_number: str, session: DBSession):
+def retrieve_car_problem_redefinition(car_number: CarNumber, session: DBSession):
     try:
         print(f"retrieve_car_problem_redefinition - car_number: {car_number}")
         car_problem_redef = session.exec(
-            select(CARProblemRedef)
-                # where(CARProblemRedef.car_number == car_number)
+            select(CARProblemRedef).\
+                where(CARProblemRedef.car_number == car_number)
             ).one()
         # car_problem_redef = session.exec(
         #     text("""
@@ -177,6 +179,11 @@ def retrieve_car_problem_redefinition(car_number: str, session: DBSession):
         #             car_number = :car_number
         #     """), {"car_number": car_number}    
         #     ).one()
+        # car_problem_redef = session.exec(
+        #     text("""
+        #             select current_database(), current_schema; 
+        #     """) 
+        #     )      
         return car_problem_redef
     except Exception as e:
         print(f"Exception in retrieve_car_problem_redefinition: {e}")
