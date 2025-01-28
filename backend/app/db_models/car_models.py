@@ -72,3 +72,13 @@ class CARCANeed(SQLModel, table=True):
     ca_needed: str
     class Config:
         schema = DB_SCHEMA
+        
+class CARRCATypeSelection(SQLModel, table=True):
+    __tablename__ = "car_rca_type_selection"
+    __table_args__ = (
+        PrimaryKeyConstraint('car_number', name='car_rca_type_selection_pk'),
+    )
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    rca_type: str
+    class Config:
+        schema = DB_SCHEMA

@@ -1,8 +1,8 @@
-from ..db_models.car_models import CARProblemDesc, CARPlanningPhase, CARProblemDescForm, CARProblemRedef, CARCANeed
+from ..db_models.car_models import CARProblemDesc, CARPlanningPhase, CARProblemDescForm, CARProblemRedef, CARCANeed, CARRCATypeSelection
 # from ..utils.types import CARProblemDescForm
 from ..utils.types import CarNumber
 from sqlmodel import Session, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.sql import text
 from typing import Annotated
 from ..db.db_connector import get_session
@@ -104,36 +104,55 @@ def add_car_problem_desc_pphase(car_problem_desc_form: CARProblemDescForm, sessi
         print(f"Exception in add_car_problem_desc_pphase: {e}")
         return "Error: Failed to add car problem description & phase"
 
-def retrieve_car_problem_desc(car_number: str, session: DBSession):
+def retrieve_car_problem_desc(car_number: CarNumber, session: DBSession):
     try:
         car_problem_desc = session.exec(
             select(CARProblemDesc).\
-                where(CARProblemDesc.car_number == car_number)
+                where(CARProblemDesc.car_number == car_number["car_number"])
             ).one()
         return car_problem_desc
-    except:
-        raise Exception("Failed to retrieve car problem description")
+    except NoResultFound:
+        print(f"No car_problem_desc found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_problem_desc: {e}")
+        raise Exception(f"Exception in retrieve_car_problem_desc: {e}")
     
-def add_car_ca_need(car_ca_need: CARCANeed, session: DBSession):
+def add_car_ca_need_requirement(car_ca_need: CARCANeed, session: DBSession):
     try:
-        session.add(car_ca_need)
+        car_ca_need_query = text("""
+            INSERT INTO
+                car_ca_need(car_number, ca_required, required_by, comment, severity, occurrence, rpn, ca_needed)
+            VALUES
+                (:car_number, :ca_required, :required_by, :comment, :severity, :occurrence, :rpn, :ca_needed)
+            ON CONFLICT (car_number) DO UPDATE
+            SET
+                ca_required = :ca_required,
+                required_by = :required_by,
+                comment = :comment,
+                severity = :severity,
+                occurrence = :occurrence,
+                rpn = :rpn,
+                ca_needed = :ca_needed;
+        """)
+        session.execute(car_ca_need_query, car_ca_need.dict())
         session.commit()
         return "Success"
-    except IntegrityError as e:
-        return "Error: CAR Number Already Exists"
     except Exception as e:
+        print(f"Exception in add_car_ca_need: {e}")
         return "Error: Failed to add car ca need"    
     
 def retrieve_car_ca_need(car_number: CarNumber, session: DBSession):
     try:
         car_ca_need = session.exec(
             select(CARCANeed).\
-                where(CARCANeed.car_number == car_number)
+                where(CARCANeed.car_number == car_number["car_number"])
             ).one()
         return car_ca_need
+    except NoResultFound:
+        print(f"No car_ca_need found for car_number: {car_number['car_number']}")
     except Exception as e:
         print(f"Exception in retrieve_car_ca_need: {e}")
-        raise Exception("Failed to retrieve car ca need")
+        raise Exception(f"Exception in retrieve_car_ca_need: {e}")
     
     
 def add_car_problem_redefinition(car_problem_redef: CARProblemRedef, session: DBSession):
@@ -153,12 +172,6 @@ def add_car_problem_redefinition(car_problem_redef: CARProblemRedef, session: DB
         session.execute(car_problem_redef_query, car_problem_redef.dict())
         session.commit()
         return "Success"
-            
-    #     session.add(car_problem_redef)
-    #     session.commit()
-    #     return "Success"
-    # except IntegrityError as e:
-    #     return "Error: CAR Number Already Exists"
     except Exception as e:
         return "Error: Failed to add car problem redefinition"
     
@@ -167,7 +180,7 @@ def retrieve_car_problem_redefinition(car_number: CarNumber, session: DBSession)
         print(f"retrieve_car_problem_redefinition - car_number: {car_number}")
         car_problem_redef = session.exec(
             select(CARProblemRedef).\
-                where(CARProblemRedef.car_number == car_number)
+                where(CARProblemRedef.car_number == car_number["car_number"])
             ).one()
         # car_problem_redef = session.exec(
         #     text("""
@@ -189,3 +202,34 @@ def retrieve_car_problem_redefinition(car_number: CarNumber, session: DBSession)
         print(f"Exception in retrieve_car_problem_redefinition: {e}")
         raise Exception("Failed to retrieve car problem redefinition")        
     # return car_problem_redef   
+    
+def retrieve_car_rca_type(car_number: CarNumber, session: DBSession):
+    try:
+        car_rca_type_selection = session.exec(
+            select(CARRCATypeSelection).\
+                where(CARRCATypeSelection.car_number == car_number["car_number"])
+            ).one()
+        return car_rca_type_selection
+    except NoResultFound:
+        print(f"No car_rca_type_selection found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_rca_type_selection: {e}")
+        raise Exception(f"Exception in retrieve_car_rca_type_selection: {e}")
+        
+def add_car_rca_type_selection(car_rca_type_selection: CARRCATypeSelection, session: DBSession):
+    try:
+        car_rca_type_selection_query = text("""
+            INSERT INTO
+                car_rca_type_selection(car_number, rca_type)
+            VALUES
+                (:car_number, :rca_type)
+            ON CONFLICT (car_number) DO UPDATE
+            SET
+                rca_type = EXCLUDED.rca_type;
+        """)
+        session.execute(car_rca_type_selection_query, car_rca_type_selection.dict())
+        session.commit()
+        return "Success"
+    except Exception as e:
+        print(f"Exception in add_car_rca_type_selection: {e}")
+        return "Error: Failed to add car rca type selection"

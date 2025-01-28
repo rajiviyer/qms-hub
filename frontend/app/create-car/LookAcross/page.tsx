@@ -22,16 +22,16 @@ export default function LookAcross() {
     // }
 
     // const { carProblemRedef, setCarProblemRedef } = carProblemRedefContext;
-    const [ carProblemRedef, setCarProblemRedef ] = useState<CARProblemRedef>(
-        {"car_number": "", "redefined_problem": "", "correction": "", "containment": "", "corr_cont_date": new Date()}
-    )
 
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
     const car_number = carProblemDesc?.car_number;
 
     console.log(`car number: ${car_number}`);
     
-
+    const [ carProblemRedef, setCarProblemRedef ] = useState<CARProblemRedef>(
+        {"car_number": car_number || "", "redefined_problem": "", "correction": "", "containment": "", "corr_cont_date": new Date()}
+    )
+    
     useEffect(() => {
         const car_number = carProblemDesc?.car_number;
         console.log(`called useffect look across, car number: ${car_number}`);
@@ -74,7 +74,7 @@ export default function LookAcross() {
                     const responseMessage = await response.json();
                     
                     if (/success/i.test(responseMessage)) {
-                        setCarProblemRedef(data);
+                        // setCarProblemRedef(data);
                         router?.push('/create-car/ValidateCANeed');
                     }
                     else {

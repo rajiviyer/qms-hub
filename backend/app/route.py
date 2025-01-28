@@ -14,7 +14,8 @@ from .utils.exceptions import (
     )
 from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
 from .controllers.car_controller import (retrieve_car_problem_desc, add_car_problem_desc_pphase, add_car_problem_redefinition, 
-                                         retrieve_car_problem_redefinition, retrieve_car_ca_need)
+                                         retrieve_car_problem_redefinition, retrieve_car_ca_need, add_car_ca_need_requirement,
+                                         retrieve_car_rca_type, add_car_rca_type_selection)
 
 
 @asynccontextmanager
@@ -95,21 +96,44 @@ def add_car_problem_redef(message: Annotated[str, Depends(add_car_problem_redefi
     print(f"message: {message}")
     return message
 
-@app.post("/api/get_problem_desc")
-def get_problem_desc(problem_desc: Annotated[dict, Depends(retrieve_car_problem_desc)]):
+@app.post("/api/get_car_problem_desc")
+def get_car_problem_desc(problem_desc: Annotated[dict, Depends(retrieve_car_problem_desc)]):
     print("problem_desc: ", problem_desc)
     return problem_desc
 
-@app.get("/api/get_car_problem_redef")
+@app.post("/api/get_car_problem_redef")
 def get_car_problem_redef(problem_redef: Annotated[dict, Depends(retrieve_car_problem_redefinition)]):
     """ 
     End Point to retrieve Problem Redefinition (Look Across) Data from DB
     """
     return problem_redef
 
-@app.get("/api/get_car_ca_need")
+@app.post("/api/get_car_ca_need")
 def get_car_ca_need(car_ca_need: Annotated[dict, Depends(retrieve_car_ca_need)]):
     """ 
     End Point to retrieve CA Need Data from DB
     """
     return car_ca_need 
+
+@app.post("/api/add_car_ca_need")
+def add_car_ca_need(message: Annotated[str, Depends(add_car_ca_need_requirement)]):
+    """ 
+    End Point to add CA Need Data to DB
+    """
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/get_car_rca_type")
+def get_car_rca_type(car_rca_type: Annotated[dict, Depends(retrieve_car_rca_type)]):
+    """ 
+    End Point to retrieve RCA Type Data from DB
+    """
+    return car_rca_type
+
+@app.post("/api/add_car_rca_type")
+def add_car_rca_type(message: Annotated[str, Depends(add_car_rca_type_selection)]):
+    """ 
+    End Point to add RCA Type Data to DB
+    """
+    print(f"message: {message}")
+    return message

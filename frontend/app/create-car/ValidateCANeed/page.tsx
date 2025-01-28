@@ -120,25 +120,33 @@ export default function ValidateCANeed() {
     throw new Error('carProblemDescContext is not available');
     }
 
-    const [ carCANeed, setCarCANeed ] = useState<CARCANeed>(
-        {
-            "car_number": "", "ca_required": "", "required_by": "", 
-            "comment":"", "severity": 1, "occurrence": 1, 
-            "rpn": 1, "ca_needed": ""}
-    )
-
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
     const car_number = carProblemDesc?.car_number;
+
+    const [ carCANeed, setCarCANeed ] = useState<CARCANeed>(
+        {
+            "car_number": car_number || "", "ca_required": "", "required_by": "", 
+            "comment":"", "severity": 1, "occurrence": 1, 
+            "rpn": 1, "ca_needed": "Yes"}
+    )    
 
     useEffect(() => {
         const car_number = carProblemDesc?.car_number;
         if (car_number) {
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_ca_need/${car_number}`)
-            .then((response) => response.json())
-            .then((data) => {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_ca_need/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({car_number: car_number}),
+            }).then(response => response.json())
+            .then(data => {
                 if (data) {
-                    setCarCANeed(data);
+                setCarCANeed(data);
+                console.log(`carCANeed from API: ${JSON.stringify(data)}`);
                 }
+            }).catch(error => {
+                console.error('Error fetching car need data:', error);
             });
         }
     }, [car_number]);    
@@ -192,6 +200,7 @@ export default function ValidateCANeed() {
     // };
         
     console.log(` ca_needed: ${watch("ca_needed")}`);
+    console.log(` severity: ${carCANeed?.severity-1}`);
     console.log(` severity_option: ${severityOptions[carCANeed.severity-1].severity}`);
     
         
@@ -212,10 +221,10 @@ export default function ValidateCANeed() {
                 
                 
                 if (/success/i.test(responseMessage)) {
-                setCarCANeed(data);
+                // setCarCANeed(data);
                 setMessageType('success');
                 setMessage(responseMessage);
-                // router?.push('create-car/LookAcross');
+                router?.push('/create-car/DefineRCAType');
                 }
                 else {
                     setMessageType('error');
@@ -245,151 +254,151 @@ export default function ValidateCANeed() {
         )}
         <form onSubmit={handleSubmit(submitCARCANeed)}>
             <div className="px-10 md:px-20 lg:px-44">
-            <div className="grid grid-cols-2 gap-4">   
-                <div>
-                    <label className="text-sm font-bold">📑CA Required by Competent Authority (Ex. Management, Customer, Auditors)</label>
-                    <Select
-                        onValueChange={(value) => setValue("ca_required", value)}
-                    >
-                        <SelectTrigger className="">
-                            <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {caRequiredOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
-                                {option}
-                            </SelectItem>
-                            ))}
-                            {/* <SelectItem value="Yes, Required by Management">Yes, Required by Management</SelectItem>
-                            <SelectItem value="Yes, Required by Customer">Yes, Required by Management</SelectItem>
-                            <SelectItem value="Yes, Required by Certification Body">Yes, Required by Management</SelectItem>
-                            <SelectItem value="Yes, Required by Statutory/Regulatory Bodies">Yes, Required by Management</SelectItem>
-                            <SelectItem value="Yes, Required by Others">Yes, Required by Management</SelectItem>
-                            <SelectItem value="Not Required">Not Required</SelectItem> */}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <label className="text-sm font-bold">⚡Required by</label>
-                    <Input
-                        type="text"
-                        className="text-xl"
-                        placeholder="Enter Required by Name"
-                        {...register("required_by", { required: true})}
-                    />
-                </div>
-                <div className="col-span-2">
-                    <label className="text-sm font-bold">⚡Comment - If CA is required by Competent Authority, Risk Analysis optional</label>
-                    <Input
-                        type="text"
-                        className="text-xl"
-                        placeholder="Enter Comments"
-                        {...register("comment", { required: true})}
-                    />
-                </div>
-                <div className="col-span-2 my-4">
-                    <h3 className="text-2xl text-teal-900 font-medium text-center">Risk Analysis</h3>
-                </div>
-                <div>   
-                    <label className="text-sm font-bold">❗Severity</label>
-                    <Select
-                        onValueChange={(value) => setValue("severity", parseInt(value))}
-                        defaultValue={"1"}
-                    >
-                        <SelectTrigger className="">
-                            <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {severityOptions.map((option) => (
-                                <SelectItem key={option.severity_number} value={option.severity_number.toString()}>
-                                    {option.severity}
+                <div className="grid grid-cols-2 gap-4">   
+                    <div>
+                        <label className="text-sm font-bold">📑CA Required by Competent Authority (Ex. Management, Customer, Auditors)</label>
+                        <Select
+                            onValueChange={(value) => setValue("ca_required", value)}
+                        >
+                            <SelectTrigger className="">
+                                <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {caRequiredOptions.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                    {option}
                                 </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>                                  
-                <div>
-                    <label className="text-sm font-bold">❗Severity Number</label>
-                    <Input
-                        type="number"
-                        min={1}
-                        max={10}
-                        className="text-xl"
-                        // value={watch("severity").toString()}
-                        readOnly
-                        {...register("severity", { required: true})}
-                    />
-                </div>
-                <div>
-                    <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
-                    <Select
-                        onValueChange={(value) => setValue("occurrence", parseInt(value))}
-                        defaultValue={"1"}
-                    >
-                        <SelectTrigger className="">
-                            <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {occurrenceOptions.map((option) => (
-                                <SelectItem key={option.occurrence_number} value={option.occurrence_number.toString()}>
-                                    {option.occurrence}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <label className="text-sm font-bold">❗Occurrence Number</label>
-                    <Input
-                        type="number"
-                        min={1}
-                        max={10}
-                        className="text-xl"
-                        readOnly
-                        {...register("occurrence", { required: true})}
-                    />
-                </div>                
-                <div>
-                    <label className="text-sm font-bold">📏RPN (Risk Priority Number)</label>
-                    <Input
-                        type="number"
-                        min={1}
-                        max={100}
-                        className="text-xl"
-                        value={(watch("occurrence") * watch("severity")).toString()}
-                        readOnly
-                        {...register("rpn", { required: true})}
-                    />
-                </div>
-                <div>
-                    <label className="text-sm font-bold">CA Required</label>
-                    <Select 
-                        onValueChange={(value) => setValue("ca_needed", value)}
-                        defaultValue={"Yes"}>
-                        <SelectTrigger>
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>             
-        </div>    
-        <div className="flex justify-between mt-10">
-                    <Button
-                        className="text-primary"
-                        onClick={handlePrevious}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        className="text-primary"
-                        type="submit"
-                    >
-                        Next
-                    </Button>
+                                ))}
+                                {/* <SelectItem value="Yes, Required by Management">Yes, Required by Management</SelectItem>
+                                <SelectItem value="Yes, Required by Customer">Yes, Required by Management</SelectItem>
+                                <SelectItem value="Yes, Required by Certification Body">Yes, Required by Management</SelectItem>
+                                <SelectItem value="Yes, Required by Statutory/Regulatory Bodies">Yes, Required by Management</SelectItem>
+                                <SelectItem value="Yes, Required by Others">Yes, Required by Management</SelectItem>
+                                <SelectItem value="Not Required">Not Required</SelectItem> */}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <label className="text-sm font-bold">⚡Required by</label>
+                        <Input
+                            type="text"
+                            className="text-xl"
+                            placeholder="Enter Required by Name"
+                            {...register("required_by", { required: true})}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <label className="text-sm font-bold">⚡Comment - If CA is required by Competent Authority, Risk Analysis optional</label>
+                        <Input
+                            type="text"
+                            className="text-xl"
+                            placeholder="Enter Comments"
+                            {...register("comment", { required: true})}
+                        />
+                    </div>
+                    <div className="col-span-2 my-4">
+                        <h3 className="text-2xl text-teal-900 font-medium text-center">Risk Analysis</h3>
+                    </div>
+                    <div>   
+                        <label className="text-sm font-bold">❗Severity</label>
+                        <Select
+                            onValueChange={(value) => setValue("severity", parseInt(value))}
+                            defaultValue={"1"}
+                        >
+                            <SelectTrigger className="">
+                                <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {severityOptions.map((option) => (
+                                    <SelectItem key={option.severity_number} value={option.severity_number.toString()}>
+                                        {option.severity}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>                                  
+                    <div>
+                        <label className="text-sm font-bold">❗Severity Number</label>
+                        <Input
+                            type="number"
+                            min={1}
+                            max={10}
+                            className="text-xl"
+                            // value={watch("severity").toString()}
+                            readOnly
+                            {...register("severity", { required: true})}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
+                        <Select
+                            onValueChange={(value) => setValue("occurrence", parseInt(value))}
+                            defaultValue={"1"}
+                        >
+                            <SelectTrigger className="">
+                                <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {occurrenceOptions.map((option) => (
+                                    <SelectItem key={option.occurrence_number} value={option.occurrence_number.toString()}>
+                                        {option.occurrence}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <label className="text-sm font-bold">❗Occurrence Number</label>
+                        <Input
+                            type="number"
+                            min={1}
+                            max={10}
+                            className="text-xl"
+                            readOnly
+                            {...register("occurrence", { required: true})}
+                        />
+                    </div>                
+                    <div>
+                        <label className="text-sm font-bold">📏RPN (Risk Priority Number)</label>
+                        <Input
+                            type="number"
+                            min={1}
+                            max={100}
+                            className="text-xl"
+                            value={(watch("occurrence") * watch("severity")).toString()}
+                            readOnly
+                            {...register("rpn", { required: true})}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm font-bold">CA Needed</label>
+                        <Select 
+                            onValueChange={(value) => setValue("ca_needed", value)}
+                            defaultValue={"Yes"}>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Yes">Yes</SelectItem>
+                                <SelectItem value="No">No</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>             
+            </div>    
+            <div className="flex justify-between mt-10">
+                        <Button
+                            className="text-primary"
+                            onClick={handlePrevious}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            className="text-primary"
+                            type="submit"
+                        >
+                            Next
+                        </Button>
             </div>        
         </form>  
     </div>
