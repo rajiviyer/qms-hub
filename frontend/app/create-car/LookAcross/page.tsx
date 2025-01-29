@@ -44,7 +44,7 @@ export default function LookAcross() {
             })
             .then((response) => response.json())
             .then((data) => {
-                if (data) {
+                if (Array.isArray(data) && data.length > 0) {
                     setCarProblemRedef(data);
                 }
             });

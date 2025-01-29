@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlmodel import SQLModel, Field, PrimaryKeyConstraint
 from datetime import datetime, date
 from ..settings import DB_SCHEMA
@@ -82,3 +82,25 @@ class CARRCATypeSelection(SQLModel, table=True):
     rca_type: str
     class Config:
         schema = DB_SCHEMA
+
+# Define Fishbone Analysis Model
+class FishboneAnalysis(SQLModel, table=True):
+    __tablename__ = "car_fishbone_analysis" 
+    id: int = Field(default=None, primary_key=True)
+    car_number: str = Field(index=True)
+    row_header: str
+    column_header: str
+    data: str = Field(default="")
+    class Config:
+        schema = DB_SCHEMA
+
+# Define Fishbone Request Model for Batch Insert
+class FishboneEntry(SQLModel):
+    car_number: str
+    row_header: str
+    column_header: str
+    data: str
+
+class FishboneData(SQLModel):
+    car_number: str
+    entries: List[FishboneEntry]        

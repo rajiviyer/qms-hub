@@ -15,7 +15,9 @@ from .utils.exceptions import (
 from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
 from .controllers.car_controller import (retrieve_car_problem_desc, add_car_problem_desc_pphase, add_car_problem_redefinition, 
                                          retrieve_car_problem_redefinition, retrieve_car_ca_need, add_car_ca_need_requirement,
-                                         retrieve_car_rca_type, add_car_rca_type_selection)
+                                         retrieve_car_rca_type, add_car_rca_type_selection, add_car_fishbone_analysis, 
+                                         retrieve_car_fishbone_analysis
+                                         )
 
 
 @asynccontextmanager
@@ -137,3 +139,18 @@ def add_car_rca_type(message: Annotated[str, Depends(add_car_rca_type_selection)
     """
     print(f"message: {message}")
     return message
+
+@app.post("/api/add_car_fishbone_analysis")
+def add_car_fishbone_analysis(message: Annotated[str, Depends(add_car_fishbone_analysis)]):
+    """ 
+    End Point to add Fishbone Analysis Data to DB
+    """
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/get_car_fishbone_analysis")
+def get_car_fishbone_analysis(car_fishbone_analysis: Annotated[dict, Depends(retrieve_car_fishbone_analysis)]):
+    """ 
+    End Point to retrieve Fishbone Analysis Data from DB
+    """
+    return car_fishbone_analysis

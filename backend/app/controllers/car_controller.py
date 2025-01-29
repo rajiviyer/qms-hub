@@ -1,4 +1,7 @@
-from ..db_models.car_models import CARProblemDesc, CARPlanningPhase, CARProblemDescForm, CARProblemRedef, CARCANeed, CARRCATypeSelection
+from ..db_models.car_models import (CARProblemDesc, CARPlanningPhase, CARProblemDescForm, 
+                                    CARProblemRedef, CARCANeed, CARRCATypeSelection,
+                                    FishboneAnalysis, FishboneEntry, FishboneData
+                                    )
 # from ..utils.types import CARProblemDescForm
 from ..utils.types import CarNumber
 from sqlmodel import Session, select
@@ -233,3 +236,41 @@ def add_car_rca_type_selection(car_rca_type_selection: CARRCATypeSelection, sess
     except Exception as e:
         print(f"Exception in add_car_rca_type_selection: {e}")
         return "Error: Failed to add car rca type selection"
+    
+def add_car_fishbone_analysis(fishbone_data: FishboneData, session: DBSession):
+    try:
+        for entry in fishbone_data.entries:
+            stmt = select(FishboneAnalysis).where(
+                (FishboneAnalysis.car_number == entry.car_number) & 
+                (FishboneAnalysis.row_header == entry.row_header) & 
+                (FishboneAnalysis.column_header == entry.column_header)                
+            )
+            existing_entry = session.exec(stmt).first()
+            if existing_entry:
+                existing_entry.data = entry.data
+                session.add(existing_entry)
+            else:
+                new_entry = FishboneAnalysis(
+                    car_number=entry.car_number,
+                    row_header=entry.row_header,
+                    column_header=entry.column_header,
+                    data=entry.data
+                )
+                session.add(new_entry)
+                
+        session.commit()
+        return "Success"
+    except Exception as e:
+        print(f"Exception in add_car_fishbone_analysis: {e}")
+        return "Error: Failed to add add_car_fishbone_analysis"
+
+def retrieve_car_fishbone_analysis(car_number: CarNumber, session: DBSession):
+    try:
+        stmt = select(FishboneAnalysis).where(FishboneAnalysis.car_number == car_number["car_number"])
+        fishbone_data = session.exec(stmt).all()
+        return fishbone_data
+    except NoResultFound:
+        print(f"No fishbone data found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in get_car_fishbone_analysis: {e}")
+        raise Exception(f"Exception in get_car_fishbone_analysis: {e}")
