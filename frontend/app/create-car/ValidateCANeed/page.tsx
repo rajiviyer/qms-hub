@@ -123,15 +123,28 @@ export default function ValidateCANeed() {
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
     const car_number = carProblemDesc?.car_number;
 
-    const [ carCANeed, setCarCANeed ] = useState<CARCANeed>(
-        {
-            "car_number": car_number || "", "ca_required": "", "required_by": "", 
-            "comment":"", "severity": 1, "occurrence": 1, 
-            "rpn": 1, "ca_needed": "Yes"}
-    )    
+    const [ carCANeed, setCarCANeed ] = useState<CARCANeed | null>(null);
+    const { register, handleSubmit, setValue, watch, reset } = useForm<CARCANeed>({
+        defaultValues: {
+            car_number: car_number || "",
+            ca_required: caRequiredOptions[0],
+            required_by: "",
+            comment: "",
+            severity: severityOptions[0].severity_number, // First severity option
+            occurrence: occurrenceOptions[0].occurrence_number, // First occurrence option
+            rpn: severityOptions[0].severity_number * occurrenceOptions[0].occurrence_number,
+            ca_needed: "Yes",
+          },        
+    });    
+
+    const url = process.env.NEXT_PUBLIC_API_URL;
+    const router = useRouter();    
+
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');    
 
     useEffect(() => {
-        const car_number = carProblemDesc?.car_number;
+        // const car_number = carProblemDesc?.car_number;
         if (car_number) {
             fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_ca_need/`, {
                 method: 'POST',
@@ -142,69 +155,24 @@ export default function ValidateCANeed() {
             }).then(response => response.json())
             .then(data => {
                 if (data) {
-                setCarCANeed(data);
+                reset(data);
                 console.log(`carCANeed from API: ${JSON.stringify(data)}`);
                 }
             }).catch(error => {
                 console.error('Error fetching car need data:', error);
             });
         }
-    }, [car_number]);    
-    // const carCANeedContext = useContext(CARCANeedContext);
-    // if (!carCANeedContext) {
-    // throw new Error('carCANeedContext is not available');
-    // }
+    }, [car_number, reset]);
 
-    // const { carCANeed, setCarCANeed } = carCANeedContext;
-    // const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
-    // const car_number = carProblemDesc?.car_number;
-    const { register, handleSubmit, setValue, watch } = useForm<CARCANeed>({defaultValues: carCANeed});
-    const url = process.env.NEXT_PUBLIC_API_URL;
-    const router = useRouter();    
-
-    const [message, setMessage] = useState('');
-    const [messageType, setMessageType] = useState('');
-
-    // const [values, setValues] = useState({
-    //     ca_needed: "No",
-    //     occurrence: 0,
-    //     severity: severityOptions[9].severity_number,
-    //     rpn: 0,
-    //     ca_required: "No",
-    // });
-
-    // useEffect(() => {
-    //     console.log(`values: ${JSON.stringify(values)}`);
-    // }, [values]);
-
-    // Handle input changes and update state
-    // const handleInputChange = (key: string, value: string | number) => {
-    //     const updatedValues = { ...values, [key]: value };
-
-    //     // Update RPN whenever occurrence or severity changes
-    //     if (key === "occurrence" || key === "severity") {
-    //     updatedValues.rpn = updatedValues.occurrence * updatedValues.severity;
-    //     }
-
-    //     // Apply logic to update CA Required
-    //     if (key === "ca_needed" && value === "Yes") {
-    //     updatedValues.ca_required = "Yes";
-    //     } else {
-    //     updatedValues.ca_required =
-    //         updatedValues.severity > 8 || updatedValues.rpn > 30 ? "Yes" : "No";
-    //     }
-
-    //     // console.log(`values: ${JSON.stringify(updatedValues)}`);
-        
-    //     setValues(updatedValues);
-    // };
-        
-    console.log(` ca_needed: ${watch("ca_needed")}`);
-    console.log(` severity: ${carCANeed?.severity-1}`);
-    console.log(` severity_option: ${severityOptions[carCANeed.severity-1].severity}`);
+    console.log(`carCANeed: ${JSON.stringify(carCANeed)}`);
     
-        
 
+    useEffect(() => {
+        const severity = watch("severity") || severityOptions[0].severity_number;
+        const occurrence = watch("occurrence") || occurrenceOptions[0].occurrence_number;
+        setValue("rpn", severity * occurrence);
+      }, [watch("severity"), watch("occurrence"), setValue]);    
+   
     const submitCARCANeed = async (data: CARCANeed) => {
         try {
             console.log(`carCANeed: ${JSON.stringify(data)}`);
@@ -269,12 +237,6 @@ export default function ValidateCANeed() {
                                     {option}
                                 </SelectItem>
                                 ))}
-                                {/* <SelectItem value="Yes, Required by Management">Yes, Required by Management</SelectItem>
-                                <SelectItem value="Yes, Required by Customer">Yes, Required by Management</SelectItem>
-                                <SelectItem value="Yes, Required by Certification Body">Yes, Required by Management</SelectItem>
-                                <SelectItem value="Yes, Required by Statutory/Regulatory Bodies">Yes, Required by Management</SelectItem>
-                                <SelectItem value="Yes, Required by Others">Yes, Required by Management</SelectItem>
-                                <SelectItem value="Not Required">Not Required</SelectItem> */}
                             </SelectContent>
                         </Select>
                     </div>
@@ -303,7 +265,7 @@ export default function ValidateCANeed() {
                         <label className="text-sm font-bold">❗Severity</label>
                         <Select
                             onValueChange={(value) => setValue("severity", parseInt(value))}
-                            defaultValue={"1"}
+                            // defaultValue={"1"}
                         >
                             <SelectTrigger className="">
                                 <SelectValue placeholder="Select" />
@@ -333,7 +295,7 @@ export default function ValidateCANeed() {
                         <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
                         <Select
                             onValueChange={(value) => setValue("occurrence", parseInt(value))}
-                            defaultValue={"1"}
+                            // defaultValue={"1"}
                         >
                             <SelectTrigger className="">
                                 <SelectValue placeholder="Select" />
@@ -374,7 +336,8 @@ export default function ValidateCANeed() {
                         <label className="text-sm font-bold">CA Needed</label>
                         <Select 
                             onValueChange={(value) => setValue("ca_needed", value)}
-                            defaultValue={"Yes"}>
+                            // defaultValue={"Yes"}
+                        >
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>

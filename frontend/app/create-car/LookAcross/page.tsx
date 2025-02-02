@@ -28,10 +28,18 @@ export default function LookAcross() {
 
     console.log(`car number: ${car_number}`);
     
-    const [ carProblemRedef, setCarProblemRedef ] = useState<CARProblemRedef>(
-        {"car_number": car_number || "", "redefined_problem": "", "correction": "", "containment": "", "corr_cont_date": new Date()}
-    )
-    
+    // const [ carProblemRedef, setCarProblemRedef ] = useState<CARProblemRedef>(
+    //     {"car_number": car_number || "", "redefined_problem": "", "correction": "", "containment": "", "corr_cont_date": new Date()}
+    // )
+    const [carProblemRedef, setCarProblemRedef] = useState<CARProblemRedef | null>(null);
+    const { register, handleSubmit, reset } = useForm<CARProblemRedef>();
+
+    const url = process.env.NEXT_PUBLIC_API_URL;
+    const router = useRouter();
+
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');    
+
     useEffect(() => {
         const car_number = carProblemDesc?.car_number;
         console.log(`called useffect look across, car number: ${car_number}`);
@@ -44,19 +52,31 @@ export default function LookAcross() {
             })
             .then((response) => response.json())
             .then((data) => {
-                if (Array.isArray(data) && data.length > 0) {
+                console.log(`data retrieved in LookAcross: ${JSON.stringify(data)}`);
+                if (data) {
+                    console.log("Setting the retrieved data in LookAcross");
                     setCarProblemRedef(data);
                 }
             });
         }
     }, [car_number]);
 
-    const { register, handleSubmit, } = useForm<CARProblemRedef>({defaultValues: carProblemRedef});
-    const url = process.env.NEXT_PUBLIC_API_URL;
-    const router = useRouter();
+    console.log(`carProblemRedef After useEffect: ${JSON.stringify(carProblemRedef)}`);
 
-    const [message, setMessage] = useState('');
-    const [messageType, setMessageType] = useState('');
+    // Reset form when carProblemRedef is updated
+    useEffect(() => {
+        if (carProblemRedef) {
+            reset({
+                ...carProblemRedef,
+                corr_cont_date: carProblemRedef.corr_cont_date instanceof Date
+                    ? carProblemRedef.corr_cont_date.toISOString().split('T')[0]
+                    : new Date(carProblemRedef.corr_cont_date).toISOString().split('T')[0]
+            });
+        }
+    }, [carProblemRedef, reset]);
+    
+    // const { register, handleSubmit, } = useForm<CARProblemRedef>({defaultValues: carProblemRedef});
+
     
     const submitCARProblemRedef = async (data: CARProblemRedef) => {
         if (car_number) {
@@ -89,7 +109,7 @@ export default function LookAcross() {
             }
         }
     }
-
+    
     const handlePrevious = () => {
         router.push("/create-car");
     };       

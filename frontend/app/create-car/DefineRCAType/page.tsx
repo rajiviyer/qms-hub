@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useContext } from 'react';
-import { CARProblemDesc } from '@/configs/schema';
+import { CARProblemDesc, CarRCAType } from '@/configs/schema';
 import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
 import { useRouter } from "next/navigation";
 
@@ -48,12 +48,12 @@ export default function DefineRCAType() {
                 body: JSON.stringify({car_number: car_number}),
             }).then(response => response.json())
             .then(data => {
+                console.log(`data retrieved in RCAType: ${JSON.stringify(data)}`);
                 if (Array.isArray(data) && data.length > 0) {
-                console.log(`data: ${JSON.stringify(data)}`);
-                if (data.rca_type) {
-                    setRCAType(data.rca_type);
+                    // if (data?.rca_type) {
+                    //     setRCAType(data?.rca_type);
+                    // }
                 }
-            }
             }).catch(error => {
                 console.error('Error in fetching rca type data', error);
             });

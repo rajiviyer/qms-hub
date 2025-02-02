@@ -37,7 +37,7 @@ export interface CARProblemRedef {
   redefined_problem: string;
   correction: string;
   containment: string;
-  corr_cont_date: Date;
+  corr_cont_date: string | Date;
 };
 
 export interface CARCANeed {
@@ -51,10 +51,10 @@ export interface CARCANeed {
   ca_needed: string;
 };
 
-// export interface CarRCAType {
-//   car_number: string;
-//   rca_type: string;
-// }
+export interface CarRCAType {
+  car_number: string;
+  rca_type: string;
+}
 
 export interface UserEmail {
   user_email: string;
