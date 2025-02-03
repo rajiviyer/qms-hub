@@ -146,7 +146,7 @@ export default function ValidateCANeed() {
     useEffect(() => {
         // const car_number = carProblemDesc?.car_number;
         if (car_number) {
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get_car_ca_need/`, {
+            fetch(`${url}/api/get_car_ca_need/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -155,8 +155,8 @@ export default function ValidateCANeed() {
             }).then(response => response.json())
             .then(data => {
                 if (data) {
-                reset(data);
-                console.log(`carCANeed from API: ${JSON.stringify(data)}`);
+                    reset(data);
+                    console.log(`carCANeed from API: ${JSON.stringify(data)}`);
                 }
             }).catch(error => {
                 console.error('Error fetching car need data:', error);
@@ -190,9 +190,9 @@ export default function ValidateCANeed() {
                 
                 if (/success/i.test(responseMessage)) {
                 // setCarCANeed(data);
-                setMessageType('success');
-                setMessage(responseMessage);
-                router?.push('/create-car/DefineRCAType');
+                    setMessageType('success');
+                    setMessage(responseMessage);
+                    router?.push('/create-car/DefineRCAType');
                 }
                 else {
                     setMessageType('error');
@@ -206,6 +206,8 @@ export default function ValidateCANeed() {
         }
     }    
 
+    console.log(`watch ca_required: ${watch("ca_required")}`);
+    
     const handlePrevious = () => {
         router.push("LookAcross");
     };   
@@ -227,15 +229,16 @@ export default function ValidateCANeed() {
                         <label className="text-sm font-bold">📑CA Required by Competent Authority (Ex. Management, Customer, Auditors)</label>
                         <Select
                             onValueChange={(value) => setValue("ca_required", value)}
+                            defaultValue={watch("ca_required") || caRequiredOptions[0]}
                         >
                             <SelectTrigger className="">
                                 <SelectValue placeholder="Select" />
                             </SelectTrigger>
                             <SelectContent>
                                 {caRequiredOptions.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                    {option}
-                                </SelectItem>
+                                    <SelectItem key={option} value={option}>
+                                        {option}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -265,7 +268,7 @@ export default function ValidateCANeed() {
                         <label className="text-sm font-bold">❗Severity</label>
                         <Select
                             onValueChange={(value) => setValue("severity", parseInt(value))}
-                            // defaultValue={"1"}
+                            defaultValue={(watch("severity") ?? severityOptions[0].severity_number).toString()}
                         >
                             <SelectTrigger className="">
                                 <SelectValue placeholder="Select" />
@@ -295,7 +298,7 @@ export default function ValidateCANeed() {
                         <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
                         <Select
                             onValueChange={(value) => setValue("occurrence", parseInt(value))}
-                            // defaultValue={"1"}
+                            defaultValue={(watch("occurrence") ?? occurrenceOptions[0].occurrence_number).toString()}
                         >
                             <SelectTrigger className="">
                                 <SelectValue placeholder="Select" />
@@ -336,10 +339,10 @@ export default function ValidateCANeed() {
                         <label className="text-sm font-bold">CA Needed</label>
                         <Select 
                             onValueChange={(value) => setValue("ca_needed", value)}
-                            // defaultValue={"Yes"}
+                            defaultValue={watch("ca_needed") || "Yes"}
                         >
                             <SelectTrigger>
-                                <SelectValue />
+                                <SelectValue placeholder="Select" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="Yes">Yes</SelectItem>
