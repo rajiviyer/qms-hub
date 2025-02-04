@@ -139,6 +139,8 @@ export default function FishBoneAnalysis() {
 
   const handleNext = async () => {
     try{
+      console.log("Inside fishbone analysis page handleNext");
+      
       const formattedData = rowHeaders.flatMap((rowHeader, rowIndex) =>
         columnHeaders.map((columnHeader, colIndex) => ({
           car_number,
@@ -148,7 +150,9 @@ export default function FishBoneAnalysis() {
         }))
       );
         // const response = await axios.post("/api/fishbone", { car_number, entries: formattedData });
-        const response = await fetch(`${url}/api/add_car_fishbone_analysis`, {
+      console.log(`formattedData: ${JSON.stringify(formattedData)}`);
+      
+      const response = await fetch(`${url}/api/add_car_fishbone_analysis`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ car_number, entries: formattedData }),
@@ -158,9 +162,9 @@ export default function FishBoneAnalysis() {
             const responseMessage = await response.json();
             // console.log(`Message: ${responseMessage}`);
             if (/success/i.test(responseMessage)) {
-            setMessageType('success');
-            setMessage(responseMessage);
-            // router?.push("CorrectiveActionPlan");
+              setMessageType('success');
+              setMessage(responseMessage);
+              router?.push("CorrectiveActionPlan");
             }
             else {
             setMessageType('error');
@@ -255,7 +259,7 @@ export default function FishBoneAnalysis() {
         </Button>
         <Button
             className="text-primary"
-            type="submit"
+            onClick={handleNext}
         >
             Next
         </Button>

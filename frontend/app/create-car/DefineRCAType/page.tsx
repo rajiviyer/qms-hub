@@ -21,7 +21,7 @@ const RCAPages: Record<string, string> = {
 
 export default function DefineRCAType() {
 
-    const [ rcaType, setRCAType ] = useState<string>("");
+    const [ carRCAType, setCARRcaType ] = useState<CarRCAType | null>(null);
 
     const carProblemDescContext = useContext(CARProblemDescContext);
     if (!carProblemDescContext) {
@@ -45,11 +45,13 @@ export default function DefineRCAType() {
             const response = fetch(`${url}/api/get_car_rca_type`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({car_number: car_number}),
+                body: JSON.stringify({"car_number": car_number}),
             }).then(response => response.json())
             .then(data => {
-                console.log(`data retrieved in RCAType: ${JSON.stringify(data)}`);
-                if (Array.isArray(data) && data.length > 0) {
+                if (data) {
+                    console.log(`data retrieved in RCAType: ${JSON.stringify(data)}`);
+                    setCARRcaType(data);
+                    // setRCAType(data[0].rca_type);
                     // if (data?.rca_type) {
                     //     setRCAType(data?.rca_type);
                     // }
@@ -68,16 +70,10 @@ export default function DefineRCAType() {
 
     const handleNext = async () => {
         try{
-
-            const data = {
-                car_number: car_number,
-                rca_type: rcaType
-            }
-
             const response = await fetch(`${url}/api/add_car_rca_type`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                body: JSON.stringify(carRCAType),
             });
 
             if (response.ok) {
@@ -85,9 +81,11 @@ export default function DefineRCAType() {
                 // console.log(`Message: ${responseMessage}`);
                    
                 if (/success/i.test(responseMessage)) {
-                setMessageType('success');
-                setMessage(responseMessage);
-                router?.push(RCAPages[rcaType]);
+                    setMessageType('success');
+                    setMessage(responseMessage);
+                    if (carRCAType?.rca_type) {
+                        router?.push(RCAPages[carRCAType?.rca_type]);    
+                    }
                 }
                 else {
                     setMessageType('error');
@@ -110,7 +108,9 @@ export default function DefineRCAType() {
     ]
 
     const changeRCAType = (value: string) => {
-        setRCAType(value);
+        if (carRCAType) {
+            setCARRcaType({...carRCAType, rca_type: value});
+        }
     }
 
     return (
@@ -128,6 +128,7 @@ export default function DefineRCAType() {
                     <label className="text-sm font-bold">📑Select RCA Type</label>
                     <Select
                         onValueChange={(value) => changeRCAType(value)}
+                        defaultValue={carRCAType?.rca_type || rcaTypeOptions[2]}
                     >
                         <SelectTrigger className="">
                             <SelectValue placeholder="Select" />
