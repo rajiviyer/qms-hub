@@ -93,6 +93,22 @@ class FishboneAnalysis(SQLModel, table=True):
     data: str = Field(default="")
     class Config:
         schema = DB_SCHEMA
+        
+
+class CARCorrectiveActionPlan(SQLModel, table=True):
+    __tablename__ = "car_corrective_action_plan"
+    __table_args__ = (
+        PrimaryKeyConstraint('car_number', 'root_cause', name='car_cap_pk'),
+    )
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    root_cause: str
+    corrective_action: str
+    responsibility: str
+    target_date: datetime
+    actual_date: datetime
+    status: str
+    class Config:
+        schema = DB_SCHEMA  
 
 # Define Fishbone Request Model for Batch Insert
 class FishboneEntry(SQLModel):

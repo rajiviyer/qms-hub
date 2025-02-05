@@ -56,6 +56,11 @@ export interface CarRCAType {
   rca_type: string;
 }
 
+export interface CARRootCause {
+  car_number: string;
+  root_cause: string;
+}
+
 export interface UserEmail {
   user_email: string;
 };

@@ -1,9 +1,9 @@
 from ..db_models.car_models import (CARProblemDesc, CARPlanningPhase, CARProblemDescForm, 
                                     CARProblemRedef, CARCANeed, CARRCATypeSelection,
-                                    FishboneAnalysis, FishboneEntry, FishboneData
+                                    FishboneAnalysis, FishboneData, CARCorrectiveActionPlan
                                     )
 # from ..utils.types import CARProblemDescForm
-from ..utils.types import CarNumber
+from ..utils.types import CarNumber, CarRootCause
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.sql import text
@@ -274,3 +274,47 @@ def retrieve_car_fishbone_analysis(car_number: CarNumber, session: DBSession):
     except Exception as e:
         print(f"Exception in get_car_fishbone_analysis: {e}")
         raise Exception(f"Exception in get_car_fishbone_analysis: {e}")
+    
+def retrieve_car_rootcauses(car_number: CarNumber, session: DBSession):
+    try:
+        query = text("""
+                     select r.car_number, r.data as root_cause from
+                        (select *, rank() over (partition by row_header order by id desc) rnk 
+                            from car_fishbone_analysis cfa  where data <> '' and car_number = :car_number) r
+                            where r.rnk = 1;
+                     """)
+            
+        result = session.execute(query, {"car_number": car_number["car_number"]})
+        column_names = result.keys()
+        rows = result.fetchall()
+        car_rootcauses = [dict(zip(column_names, row)) for row in rows]
+        print(f"car_rootcauses: {car_rootcauses}")
+        return car_rootcauses
+    except NoResultFound:
+        print(f"No car_rootcauses found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_rootcauses: {e}")
+        raise Exception(f"Exception in retrieve_car_rootcauses: {e}")
+    
+def add_car_cap_data(car_cap_data: CARCorrectiveActionPlan, session: DBSession):
+    try:
+        session.add(car_cap_data)
+        session.commit()
+        return "Success"
+    except Exception as e:
+        print(f"Exception in add_car_cap_data: {e}")
+        return "Error: Failed to add car cap data"
+
+def retrieve_car_cap_data(car_rootcause: CarRootCause, session: DBSession):
+    try:
+        car_cap_data = session.exec(
+            select(CARCorrectiveActionPlan).\
+                where(CARCorrectiveActionPlan.car_number == car_rootcause["car_number"] 
+                      and CARCorrectiveActionPlan.root_cause == car_rootcause["root_cause"])
+            ).all()
+        return car_cap_data
+    except NoResultFound:
+        print(f"No car_cap_data found for car_number: {car_rootcause['car_number']} and root cause {car_rootcause['root_cause']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_cap_data: {e}")
+        raise Exception(f"Exception in retrieve_car_cap_data: {e}") 

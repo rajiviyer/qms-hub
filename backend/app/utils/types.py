@@ -15,6 +15,10 @@ class UserEmail(TypedDict):
 class CarNumber(TypedDict):
     car_number: str
     
+class CarRootCause(TypedDict):
+    car_number: str
+    root_cause: str
+    
 # class CARProblemDescForm(TypedDict):
 #     car_number: str;
 #     initiation_date: date;

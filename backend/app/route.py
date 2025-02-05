@@ -16,7 +16,8 @@ from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
 from .controllers.car_controller import (retrieve_car_problem_desc, add_car_problem_desc_pphase, add_car_problem_redefinition, 
                                          retrieve_car_problem_redefinition, retrieve_car_ca_need, add_car_ca_need_requirement,
                                          retrieve_car_rca_type, add_car_rca_type_selection, add_car_fishbone_analysis, 
-                                         retrieve_car_fishbone_analysis
+                                         retrieve_car_fishbone_analysis, retrieve_car_rootcauses, 
+                                         add_car_cap_data, retrieve_car_cap_data
                                          )
 
 
@@ -154,3 +155,25 @@ def get_car_fishbone_analysis(car_fishbone_analysis: Annotated[dict, Depends(ret
     End Point to retrieve Fishbone Analysis Data from DB
     """
     return car_fishbone_analysis
+
+@app.post("/api/get_car_rootcauses")
+def get_car_rootcauses(car_rootcauses: Annotated[List, Depends(retrieve_car_rootcauses)]):
+    """ 
+    End Point to retrieve Root Causes Data from DB
+    """
+    return car_rootcauses
+
+@app.post("/api/add_car_cap_data")
+def add_car_cap_data(message: Annotated[str, Depends(add_car_cap_data)]):
+    """ 
+    End Point to add CAR Corrective Action Plan Data to DB
+    """
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/get_car_cap_data")
+def get_car_cap_data(car_cap_data: Annotated[dict, Depends(retrieve_car_cap_data)]):
+    """ 
+    End Point to retrieve CAR Corrective Action Plan Data from DB
+    """
+    return car_cap_data
