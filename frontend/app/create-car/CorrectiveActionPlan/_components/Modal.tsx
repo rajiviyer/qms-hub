@@ -21,10 +21,6 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
 
   const [rowHeaders, setRowHeaders] = useState([
     "ROW1",
-    "ROW2",
-    "ROW2",
-    "ROW2",
-    "ROW2",
   ]);
   const [columnHeaders, setColumnHeaders] = useState([
     "Corrective Action",
@@ -113,6 +109,20 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
     setGridData(newGrid);
   };  
 
+  const validateGridData = () => {
+    for (let row = 0; row < gridData.length; row++) {
+      for (let col = 0; col < gridData[row].length; col++) {
+        if (!gridData[row][col].trim()) {
+          setMessage("All fields must be filled before saving.");
+          setMessageType("error");
+          return false;
+        }
+      }
+    }
+    setMessage("");
+    return true;
+  };  
+
   const convertGridToObjects = (gridData: string[][], columnHeaders: string[], car_number: string, root_cause: string) => {
     return gridData.map((row) => {
       const formattedRow = Object.fromEntries(
@@ -142,22 +152,30 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
   
 
   const saveData = () => {
-    if (car_number && root_cause) {
-      const formattedData = convertGridToObjects(gridData, columnHeaders, car_number, root_cause);      
-      fetch(`${url}/api/add_car_cap_data`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formattedData),
-      }).then(response => response.json())
-      .then(data => {
-        console.log(`data: ${JSON.stringify(data)}`);
-        setMessage(data.message);
-        setMessageType(data.messageType);
-      }).catch(error => {
-        console.error("Error saving CAR CAP data:", error);
-      });
+    if (!validateGridData()) {
+      setMessage("All fields must be filled before saving.");
+      setMessageType("error");
+    }
+    else {
+      setMessage("");
+      setMessageType("");
+      if (car_number && root_cause) {
+        const formattedData = convertGridToObjects(gridData, columnHeaders, car_number, root_cause);      
+        fetch(`${url}/api/add_car_cap_data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formattedData),
+        }).then(response => response.json())
+        .then(data => {
+          console.log(`data: ${JSON.stringify(data)}`);
+          setMessage(data.message);
+          setMessageType(data.messageType);
+        }).catch(error => {
+          console.error("Error saving CAR CAP data:", error);
+        });
+      }
     }
   };
 
@@ -189,29 +207,42 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
           </thead>
           <tbody>
             {
-              rowHeaders.map((rowHeader, rowIndex) =>
+              rowHeaders.map((_, rowIndex) =>
               (
                 <tr key={rowIndex}>
                   {
                     columnHeaders.map((_, colIndex) => (
                       <td key={colIndex} className="border border-gray-300 px-2 py-2 relative">
                         {
-                          <Textarea
-                            className={`w-full h-16 resize-none transition-all duration-300 ${
-                            focusedCell?.row === rowIndex && focusedCell?.col === colIndex
-                            ? "absolute z-10 top-0 left-0 w-80 h-40 bg-white shadow-md"
-                            : ""
-                            }`}
-                            value={gridData[rowIndex][colIndex]}
-                            onFocus={() => setFocusedCell({ row: rowIndex, col: colIndex })}
-                            onBlur={() => setFocusedCell(null)}
-                            onChange={(e) => handleInputChange(rowIndex, colIndex, e.target.value)}
-                          /> 
+                          ([2, 3].includes(colIndex) ) ?
+                            (<Input
+                                type="date"
+                                value={gridData[rowIndex][colIndex]}
+                                onChange={(e) => handleInputChange(rowIndex, colIndex, e.target.value)}
+                              />) :
+                            (<Textarea
+                              className={`w-full h-16 resize-none transition-all duration-300 ${
+                              focusedCell?.row === rowIndex && focusedCell?.col === colIndex
+                              ? "absolute z-10 top-0 left-0 w-80 h-40 bg-white shadow-md"
+                              : ""
+                              }`}
+                              value={gridData[rowIndex][colIndex]}
+                              onFocus={() => setFocusedCell({ row: rowIndex, col: colIndex })}
+                              onBlur={() => setFocusedCell(null)}
+                              onChange={(e) => handleInputChange(rowIndex, colIndex, e.target.value)}
+                            /> )
                         }
                       </td>
                     )
                   )
                   }
+                  <td className="border border-gray-300 px-2 py-2">
+                    {rowIndex > 0 && ( // ✅ Disable delete button for the first row
+                      <Button onClick={() => removeRow(rowIndex)} className="bg-red-500 text-white">
+                        X
+                      </Button>
+                    )}
+                  </td>
                 </tr>
               )
             )
@@ -220,7 +251,7 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
         </table>
         <div className="flex space-x-4 mb-4 mt-3">
           <Button onClick={onClose} className="w-full text-primary mt-5">Close</Button>
-          <Button onClick={onClose} className="w-full text-primary mt-5">Save</Button>
+          <Button onClick={saveData} className="w-full text-primary mt-5">Save</Button>
         </div>
         
       </div>

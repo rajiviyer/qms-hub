@@ -23,20 +23,12 @@ export default function FishBoneAnalysis() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');  
 
-  const [rowHeaders, setRowHeaders] = useState([
-    "PEOPLE",
-    "MACHINE",
-    "MATERIAL",
-    "METHODS",
-    "ENVIRONMENT",
-  ]);
-  const [columnHeaders, setColumnHeaders] = useState([
-    "WHY 1",
-    "WHY 2",
-    "WHY 3",
-    "WHY 4",
-    "WHY 5",
-  ]);
+  // Define Default Headers
+  const defaultRowHeaders = ["PEOPLE", "MACHINE", "MATERIAL", "METHODS", "ENVIRONMENT"];
+  const defaultColumnHeaders = ["WHY 1", "WHY 2", "WHY 3", "WHY 4", "WHY 5"];  
+
+  const [rowHeaders, setRowHeaders] = useState([...defaultRowHeaders]);
+  const [columnHeaders, setColumnHeaders] = useState([...defaultColumnHeaders]);
   const [gridData, setGridData] = useState(
     Array(rowHeaders.length)
       .fill(null)
@@ -110,7 +102,7 @@ export default function FishBoneAnalysis() {
 
   // Remove a Row
   const removeRow = (index: number) => {
-    if (rowHeaders.length <= 1) return; // Ensure at least one row remains
+    if (index < defaultRowHeaders.length) return; // Prevent default row removal
     const newRowHeaders = rowHeaders.filter((_, i) => i !== index);
     const newGrid = gridData.filter((_, i) => i !== index);
     setRowHeaders(newRowHeaders);
@@ -121,7 +113,7 @@ export default function FishBoneAnalysis() {
   const addColumn = () => {
     const newColumnHeaders = [
       ...columnHeaders,
-      `NEW COLUMN ${columnHeaders.length + 1}`,
+      `WHY ${columnHeaders.length + 1}`,
     ];
     setColumnHeaders(newColumnHeaders);
     setGridData(gridData.map((row) => [...row, ""]));
@@ -130,7 +122,7 @@ export default function FishBoneAnalysis() {
 
   // Remove a Column
   const removeColumn = (index: number) => {
-    if (columnHeaders.length <= 1) return; // Ensure at least one column remains
+    if (index < defaultColumnHeaders.length) return; // Prevent default column removal
     const newColumnHeaders = columnHeaders.filter((_, i) => i !== index);
     const newGrid = gridData.map((row) => row.filter((_, i) => i !== index));
     setColumnHeaders(newColumnHeaders);
@@ -212,6 +204,14 @@ export default function FishBoneAnalysis() {
                 className="border border-gray-300 px-2 py-2 bg-gray-100 font-semibold"
               >
                 {header}
+                {index >= defaultColumnHeaders.length && (
+                  <button
+                  onClick={() => removeColumn(index)}
+                  className="bg-red-500 text-white text-xs px-2 py-1 rounded ml-2"
+                  >
+                    ✖
+                  </button>
+                )}              
               </th>
             ))}
           </tr>
@@ -221,16 +221,17 @@ export default function FishBoneAnalysis() {
             <tr key={rowIndex}>
               <td className="border border-gray-300 px-2 py-2 font-medium bg-gray-50 text-center">
                 {rowHeader}
+                {rowIndex >= defaultRowHeaders.length && (
+                  <button
+                  onClick={() => removeRow(rowIndex)}
+                  className="bg-red-500 text-white text-xs px-2 py-1 rounded"
+                  >
+                    ✖
+                  </button>
+                )}                         
               </td>
               {columnHeaders.map((_, colIndex) => (
                 <td key={colIndex} className="border border-gray-300 px-2 py-2 relative">
-                  {/* <Textarea
-                    className="w-full h-16 resize-none"
-                    value={gridData[rowIndex][colIndex]}
-                    onChange={(e) =>
-                      handleInputChange(rowIndex, colIndex, e.target.value)
-                    }
-                  /> */}
                   <Textarea
                     className={`w-full h-16 resize-none transition-all duration-300 ${
                       focusedCell?.row === rowIndex && focusedCell?.col === colIndex
