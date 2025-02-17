@@ -61,7 +61,7 @@ export default function CorrectiveActionPlan() {
     }
     
     const handleNext = () => {
-        // router?.push('/create-car/DefineRCAType');
+        router?.push("/create-car/QMSProcessTraining");
     }
 
 

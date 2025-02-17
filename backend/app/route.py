@@ -17,7 +17,7 @@ from .controllers.car_controller import (retrieve_car_problem_desc, add_car_prob
                                          retrieve_car_problem_redefinition, retrieve_car_ca_need, add_car_ca_need_requirement,
                                          retrieve_car_rca_type, add_car_rca_type_selection, add_car_fishbone_analysis, 
                                          retrieve_car_fishbone_analysis, retrieve_car_rootcauses, 
-                                         add_car_cap_data, retrieve_car_cap_data
+                                         add_car_cap_info, retrieve_car_cap_data
                                          )
 
 
@@ -164,7 +164,7 @@ def get_car_rootcauses(car_rootcauses: Annotated[List, Depends(retrieve_car_root
     return car_rootcauses
 
 @app.post("/api/add_car_cap_data")
-def add_car_cap_data(message: Annotated[str, Depends(add_car_cap_data)]):
+def add_car_cap_data(message: Annotated[str, Depends(add_car_cap_info)]):
     """ 
     End Point to add CAR Corrective Action Plan Data to DB
     """

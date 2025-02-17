@@ -98,14 +98,14 @@ class FishboneAnalysis(SQLModel, table=True):
 class CARCorrectiveActionPlan(SQLModel, table=True):
     __tablename__ = "car_corrective_action_plan"
     __table_args__ = (
-        PrimaryKeyConstraint('car_number', 'root_cause', name='car_cap_pk'),
+        PrimaryKeyConstraint('car_number', 'root_cause', 'corrective_action', name='car_cap_ca_pk'),
     )
     car_number: str = Field(foreign_key="car_problem_definition.car_number")
     root_cause: str
     corrective_action: str
     responsibility: str
-    target_date: datetime
-    actual_date: datetime
+    target_date: date
+    actual_date: Optional[date]
     status: str
     class Config:
         schema = DB_SCHEMA  
@@ -119,4 +119,16 @@ class FishboneEntry(SQLModel):
 
 class FishboneData(SQLModel):
     car_number: str
-    entries: List[FishboneEntry]        
+    entries: List[FishboneEntry]  
+    
+class CARCorrectiveActionPlanEntry(SQLModel):
+    car_number: str
+    root_cause: str
+    corrective_action: str
+    responsibility: str
+    target_date: date
+    actual_date: Optional[date]
+    status: str
+    
+class CARCorrectiveActionPlanData(SQLModel):
+    entries: List[CARCorrectiveActionPlanEntry]          

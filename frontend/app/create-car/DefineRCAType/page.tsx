@@ -21,8 +21,6 @@ const RCAPages: Record<string, string> = {
 
 export default function DefineRCAType() {
 
-    const [ carRCAType, setCARRcaType ] = useState<CarRCAType | null>(null);
-
     const carProblemDescContext = useContext(CARProblemDescContext);
     if (!carProblemDescContext) {
     throw new Error('carProblemDescContext is not available');
@@ -32,6 +30,10 @@ export default function DefineRCAType() {
     const car_number = carProblemDesc?.car_number;
 
     console.log(`In RCA Type page, car number: ${car_number}`);
+
+    const [ carRCAType, setCARRcaType ] = useState<CarRCAType | null>({
+        car_number: car_number || "",
+        rca_type: "Fish Bone Analysis",});
 
     const url = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();

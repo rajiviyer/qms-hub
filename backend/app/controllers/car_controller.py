@@ -1,6 +1,6 @@
 from ..db_models.car_models import (CARProblemDesc, CARPlanningPhase, CARProblemDescForm, 
                                     CARProblemRedef, CARCANeed, CARRCATypeSelection,
-                                    FishboneAnalysis, FishboneData, CARCorrectiveActionPlan
+                                    FishboneAnalysis, FishboneData, CARCorrectiveActionPlan, CARCorrectiveActionPlanData
                                     )
 # from ..utils.types import CARProblemDescForm
 from ..utils.types import CarNumber, CarRootCause
@@ -296,14 +296,39 @@ def retrieve_car_rootcauses(car_number: CarNumber, session: DBSession):
         print(f"Exception in retrieve_car_rootcauses: {e}")
         raise Exception(f"Exception in retrieve_car_rootcauses: {e}")
     
-def add_car_cap_data(car_cap_data: CARCorrectiveActionPlan, session: DBSession):
+def add_car_cap_info(car_cap_data: CARCorrectiveActionPlanData, session: DBSession):
     try:
-        session.add(car_cap_data)
+        for entry in car_cap_data.entries:
+            stmt = select(CARCorrectiveActionPlan).where(
+                (CARCorrectiveActionPlan.car_number == entry.car_number) & 
+                (CARCorrectiveActionPlan.root_cause == entry.root_cause) &
+                (CARCorrectiveActionPlan.corrective_action == entry.corrective_action)
+            )
+            existing_entry = session.exec(stmt).first()
+            if existing_entry:
+                existing_entry.responsibility = entry.responsibility
+                existing_entry.target_date = entry.target_date
+                if existing_entry.actual_date:
+                    existing_entry.actual_date = entry.actual_date
+                existing_entry.status = entry.status
+                session.add(existing_entry)
+            else:
+                new_entry = CARCorrectiveActionPlan(
+                    car_number=entry.car_number,
+                    root_cause=entry.root_cause,
+                    corrective_action = entry.corrective_action,
+                    responsibility = entry.responsibility,
+                    target_date = entry.target_date,
+                    actual_date = entry.actual_date if entry.actual_date else "",
+                    status = entry.status
+                )
+                session.add(new_entry)
+                
         session.commit()
         return "Success"
     except Exception as e:
-        print(f"Exception in add_car_cap_data: {e}")
-        return "Error: Failed to add car cap data"
+        print(f"Exception in add_car_cap_info: {e}")
+        return "Error: Failed to add add_car_cap_info"
 
 def retrieve_car_cap_data(car_rootcause: CarRootCause, session: DBSession):
     try:
@@ -317,4 +342,4 @@ def retrieve_car_cap_data(car_rootcause: CarRootCause, session: DBSession):
         print(f"No car_cap_data found for car_number: {car_rootcause['car_number']} and root cause {car_rootcause['root_cause']}")
     except Exception as e:
         print(f"Exception in retrieve_car_cap_data: {e}")
-        raise Exception(f"Exception in retrieve_car_cap_data: {e}") 
+        raise Exception(f"Exception in retrieve_car_cap_data: {e}")

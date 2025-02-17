@@ -49,35 +49,51 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
         }).then(response => response.json())
         .then(data => {
           console.log(`data: ${JSON.stringify(data)}`);
-         
+          console.log(`Array.isArray(data): ${Array.isArray(data)}`);
+          console.log(`data.length: ${data.length}`);
+          
           if (Array.isArray(data) && data.length > 0) {
+            console.log("Inside if statement");
+            
             // Create new grid with fetched data
             const newRowHeaders: string[] = Array.from(
-              new Set(data.map((item: { row_header: string }) => item.row_header))
+              new Set(data.map((_, index) => index.toString()))
             );
-            const newColumnHeaders: string[] = Array.from(
-              new Set(data.map((item: { column_header: string }) => item.column_header))
-            );
+            // const newColumnHeaders: string[] = Array.from(
+            //   new Set(data.map((item: { column_header: string }) => item.column_header))
+            // );
 
-            const newGrid = Array(newRowHeaders.length)
-              .fill(null)
-              .map(() => Array(newColumnHeaders.length).fill(""));
+            // console.log((`Row Headers: ${newRowHeaders}`));
+            // console.log((`Column Headers: ${newColumnHeaders}`));
 
-            // Populate grid with database values
-            data.forEach((item: any) => {
-              const rowIndex = newRowHeaders.indexOf(item.row_header);
-              const colIndex = newColumnHeaders.indexOf(item.column_header);
-              if (rowIndex !== -1 && colIndex !== -1) {
-                newGrid[rowIndex][colIndex] = item.data;
-              }
-            });
+            const newGrid: string[][] = data.map((item) => [
+              item.corrective_action,
+              item.responsibility,
+              item.target_date,
+              item.actual_date,
+              item.status,
+            ]);
+            
 
-            console.log(`newRowHeaders: ${JSON.stringify(newRowHeaders)}`);
-            console.log(`newColumnHeaders: ${JSON.stringify(newColumnHeaders)}`);
+            // const newGrid = Array(newRowHeaders.length)
+            //   .fill(null)
+            //   .map(() => Array(columnHeaders.length).fill(""));
+
+            // // Populate grid with database values
+            // data.forEach((item: any) => {
+            //   const rowIndex = newRowHeaders.indexOf(item);
+            //   const colIndex = columnHeaders.indexOf(item);
+            //   if (rowIndex !== -1 && colIndex !== -1) {
+            //     newGrid[rowIndex][colIndex] = item.data;
+            //   }
+            // });
+
+            // console.log(`newRowHeaders: ${JSON.stringify(newRowHeaders)}`);
+            // console.log(`columnHeaders: ${JSON.stringify(columnHeaders)}`);
             console.log(`newGrid: ${JSON.stringify(newGrid)}`);
             
             setRowHeaders(newRowHeaders);
-            setColumnHeaders(newColumnHeaders);
+            // setColumnHeaders(newColumnHeaders);
             setGridData(newGrid);
           }
         }).catch(error => {
@@ -87,6 +103,8 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
   }, [car_number]);  
 
   const handleInputChange = (row: number, col: number, value: string) => {
+    setMessage("");
+    setMessageType("");
     const updatedData = [...gridData];
     updatedData[row][col] = value;
     setGridData(updatedData);
@@ -112,9 +130,9 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
   const validateGridData = () => {
     for (let row = 0; row < gridData.length; row++) {
       for (let col = 0; col < gridData[row].length; col++) {
-        if (!gridData[row][col].trim()) {
-          setMessage("All fields must be filled before saving.");
-          setMessageType("error");
+        if (col != 3 && !gridData[row][col].trim()) {
+          // setMessage("All fields must be filled before saving.");
+          // setMessageType("error");
           return false;
         }
       }
@@ -151,30 +169,44 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
   };
   
 
-  const saveData = () => {
+  const saveData = async () => {
     if (!validateGridData()) {
       setMessage("All fields must be filled before saving.");
       setMessageType("error");
     }
     else {
-      setMessage("");
-      setMessageType("");
       if (car_number && root_cause) {
-        const formattedData = convertGridToObjects(gridData, columnHeaders, car_number, root_cause);      
-        fetch(`${url}/api/add_car_cap_data`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formattedData),
-        }).then(response => response.json())
-        .then(data => {
-          console.log(`data: ${JSON.stringify(data)}`);
-          setMessage(data.message);
-          setMessageType(data.messageType);
-        }).catch(error => {
-          console.error("Error saving CAR CAP data:", error);
-        });
+        try {
+          const formattedData = convertGridToObjects(gridData, columnHeaders, car_number, root_cause);   
+          console.log(`formattedData root cause CAP: ${JSON.stringify(formattedData)}`);
+             
+          const response = await fetch(`${url}/api/add_car_cap_data`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ entries: formattedData }),
+          })
+          
+          if (response.ok) {
+            const responseMessage = await response.json();
+            
+            if (/success/i.test(responseMessage)) {
+                setMessageType('success')
+                setMessage("Successfully Added Data")
+                // setCarProblemRedef(data);
+                // router?.push('/create-car/ValidateCANeed');
+            }
+            else {
+                setMessageType('error');
+                setMessage(responseMessage);
+            }
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          setMessageType('error');
+          setMessage('An error occurred. Please try again.');
+        }
       }
     }
   };
