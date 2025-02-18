@@ -1,6 +1,7 @@
 from ..db_models.car_models import (CARProblemDesc, CARPlanningPhase, CARProblemDescForm, 
                                     CARProblemRedef, CARCANeed, CARRCATypeSelection,
-                                    FishboneAnalysis, FishboneData, CARCorrectiveActionPlan, CARCorrectiveActionPlanData
+                                    FishboneAnalysis, FishboneData, CARCorrectiveActionPlan, CARCorrectiveActionPlanData,
+                                    CARQPTReq, CARCAEffectivenessPlan, CARCAEffectivenessPlanData
                                     )
 # from ..utils.types import CARProblemDescForm
 from ..utils.types import CarNumber, CarRootCause
@@ -343,3 +344,85 @@ def retrieve_car_cap_data(car_rootcause: CarRootCause, session: DBSession):
     except Exception as e:
         print(f"Exception in retrieve_car_cap_data: {e}")
         raise Exception(f"Exception in retrieve_car_cap_data: {e}")
+
+def add_car_qpt_requirement(car_qpt_req: CARQPTReq, session: DBSession):
+    try:
+        car_qpt_req_query = text("""
+         INSERT INTO car_qpt_requirements(car_number, qms_required, qms_required_comments, qms_documentation_required, 
+                        qms_documentation_required_comments, training_required, training_required_comments)
+         VALUES (:car_number, :qms_required, :qms_required_comments, :qms_documentation_required, 
+                        :qms_documentation_required_comments, :training_required, :training_required_comments)
+         ON CONFLICT (car_number) DO UPDATE
+         SET
+            qms_required = :qms_required,
+            qms_required_comments = :qms_required_comments,
+            qms_documentation_required = :qms_documentation_required,
+            qms_documentation_required_comments = :qms_documentation_required_comments,
+            training_required = :training_required,
+            training_required_comments = :training_required_comments;                        
+        """)
+        session.execute(car_qpt_req_query, car_qpt_req.dict())
+        session.commit()
+        return "Success"
+    except Exception as e:
+        print(f"Exception in add_car_qpt_requirement: {e}")
+        return "Error: Failed to add car qpt requirements"
+    
+def retrieve_car_qpt_requirement(car_number: CarNumber, session: DBSession):
+    try:
+        car_qpt_req = session.exec(
+            select(CARQPTReq).\
+                where(CARQPTReq.car_number == car_number["car_number"])
+            ).one()
+        return car_qpt_req
+    except NoResultFound:
+        print(f"No car_qpt_req found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_qpt_requirement: {e}")
+        raise Exception(f"Exception in retrieve_car_qpt_requirement: {e}")
+        
+        
+def add_car_ca_effectiveness_plan(car_ca_effectiveness_plan: CARCAEffectivenessPlanData, session: DBSession):
+    try:
+        for entry in car_ca_effectiveness_plan.entries:
+            stmt = select(CARCAEffectivenessPlan).where(
+                (CARCAEffectivenessPlan.car_number == entry.car_number) & 
+                (CARCAEffectivenessPlan.planned_action == entry.planned_action)
+            )
+            existing_entry = session.exec(stmt).first()
+            if existing_entry:
+                existing_entry.responsibility = entry.responsibility
+                existing_entry.target_date = entry.target_date
+                if existing_entry.actual_date:
+                    existing_entry.actual_date = entry.actual_date
+                existing_entry.status = entry.status
+                session.add(existing_entry)
+            else:
+                new_entry = CARCAEffectivenessPlan(
+                    car_number=entry.car_number,
+                    planned_action = entry.planned_action,
+                    responsibility = entry.responsibility,
+                    target_date = entry.target_date,
+                    actual_date = entry.actual_date if entry.actual_date else "",
+                    status = entry.status
+                )
+                session.add(new_entry)
+                
+        session.commit()
+        return "Success"
+    except Exception as e:
+        print(f"Exception in add_car_ca_effectiveness_plan: {e}")
+        return "Error: Failed to add add_car_ca_effectiveness_plan"
+
+def retrieve_car_ca_effectiveness_plan(car_number: CarNumber, session: DBSession):
+    try:
+        car_ca_effectiveness_plan = session.exec(
+            select(CARCAEffectivenessPlan).\
+                where(CARCAEffectivenessPlan.car_number == car_number["car_number"])
+            ).all()
+        return car_ca_effectiveness_plan
+    except NoResultFound:
+        print(f"No car_ca_effectiveness_plan found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_ca_effectiveness_plan: {e}")
+        raise Exception(f"Exception in retrieve_car_ca_effectiveness_plan: {e}")    

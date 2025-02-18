@@ -131,4 +131,39 @@ class CARCorrectiveActionPlanEntry(SQLModel):
     status: str
     
 class CARCorrectiveActionPlanData(SQLModel):
-    entries: List[CARCorrectiveActionPlanEntry]          
+    entries: List[CARCorrectiveActionPlanEntry]
+
+class CARQPTReq(SQLModel, table = True):
+    __tablename__ = "car_qpt_requirements"
+    __table_args__ = (
+        PrimaryKeyConstraint('car_number', name='car_qpt_requirements_pk'),
+    )
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    qms_required: str
+    qms_required_comments: str
+    qms_documentation_required: str
+    qms_documentation_required_comments: str
+    training_required: str
+    training_required_comments: str
+    class Config:
+        schema = DB_SCHEMA
+        
+class CARCAEffectivenessPlan(SQLModel, table=True):
+    __tablename__ = "car_ca_effectiveness_plan"
+    __table_args__ = (
+        PrimaryKeyConstraint('car_number', 'planned_action', name='car_ca_effectiveness_plan_pk'),
+    )
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    planned_action: str
+    responsibility: str
+    target_date: date
+    actual_date: Optional[date]
+    status: str
+    class Config:
+        schema = DB_SCHEMA
+
+class CARCAEffectivenessPlanData(SQLModel):
+    entries: List[CARCAEffectivenessPlan]        
+        
+        
+          

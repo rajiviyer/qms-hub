@@ -17,7 +17,8 @@ from .controllers.car_controller import (retrieve_car_problem_desc, add_car_prob
                                          retrieve_car_problem_redefinition, retrieve_car_ca_need, add_car_ca_need_requirement,
                                          retrieve_car_rca_type, add_car_rca_type_selection, add_car_fishbone_analysis, 
                                          retrieve_car_fishbone_analysis, retrieve_car_rootcauses, 
-                                         add_car_cap_info, retrieve_car_cap_data
+                                         add_car_cap_info, retrieve_car_cap_data, add_car_qpt_requirement, retrieve_car_qpt_requirement,
+                                         add_car_ca_effectiveness_plan, retrieve_car_ca_effectiveness_plan
                                          )
 
 
@@ -177,3 +178,33 @@ def get_car_cap_data(car_cap_data: Annotated[dict, Depends(retrieve_car_cap_data
     End Point to retrieve CAR Corrective Action Plan Data from DB
     """
     return car_cap_data
+
+@app.post("/api/get_car_qpt_req")
+def get_car_rpt_req(car_rpt_req: Annotated[dict, Depends(retrieve_car_qpt_requirement)]):
+    """ 
+    End Point to retrieve CAR Report Requirement Data from DB
+    """
+    return car_rpt_req
+
+@app.post("/api/add_car_qpt_req")
+def add_car_rpt_req(message: Annotated[str, Depends(add_car_qpt_requirement)]):
+    """ 
+    End Point to add CAR Report Requirement Data to DB
+    """
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/add_car_ca_effectiveness_plan")
+def add_car_ca_effectiveness_plan(message: Annotated[str, Depends(add_car_ca_effectiveness_plan)]):
+    """ 
+    End Point to add CAR CA Effectiveness Plan Data to DB
+    """
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/get_car_ca_effectiveness_plan")
+def get_car_ca_effectiveness_plan(car_ca_effectiveness_plan: Annotated[dict, Depends(retrieve_car_ca_effectiveness_plan)]):
+    """ 
+    End Point to retrieve CAR CA Effectiveness Plan Data from DB
+    """
+    return car_ca_effectiveness_plan

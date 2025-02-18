@@ -11,6 +11,7 @@ import {
   } from "@/components/ui/select";
 import { useForm } from 'react-hook-form';
 import { useRouter } from "next/navigation";
+import { CARQPTReq } from '@/configs/schema';
 import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
 
 
@@ -26,8 +27,11 @@ export default function QMSProcessTraining() {
 
     console.log(`car number: ${car_number}`);    
 
+    const [ carQPTReq, setCarQPTReq ] = useState<CARQPTReq | null>(null);
+
     const { register, handleSubmit, setValue, watch, reset } = useForm({
         defaultValues: {
+            car_number: car_number || "",
             qms_required: "Yes",
             qms_required_comments: "",
             qms_documentation_required: "Yes",
@@ -43,6 +47,59 @@ export default function QMSProcessTraining() {
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState(''); 
 
+    useEffect(() => {
+        if (car_number) {
+            fetch(`${url}/api/get_car_qpt_req/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({car_number: car_number}),
+            }).then(response => response.json())
+            .then(data => {
+                if (data) {
+                    reset(data);
+                    console.log(`carQPTReq from API: ${JSON.stringify(data)}`);
+                }
+            }).catch(error => {
+                console.error('Error fetching car qpt req data:', error);
+            });
+        }
+    }, [car_number, reset]);
+
+    // console.log(`carQPTReq: ${JSON.stringify(carQPTReq)}`);    
+
+
+    const submitCARQPTReq = async (data: CARQPTReq) => {
+        try {
+            console.log(`CARQPTReq: ${JSON.stringify(data)}`);
+
+            const response = await fetch(`${url}/api/add_car_qpt_req`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const responseMessage = await response.json();
+                
+                if (/success/i.test(responseMessage)) {
+                    setMessageType('success');
+                    setMessage(responseMessage);
+                    router?.push('/create-car/CAEffectivenessPlan');
+                }
+                else {
+                    setMessageType('error');
+                    setMessage(responseMessage);
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setMessageType('error');
+            setMessage('An error occurred. Please try again.');
+        }
+    }        
+
     const handlePrevious = () => {
         router.push("CorrectiveActionPlan");
     };     
@@ -54,7 +111,7 @@ export default function QMSProcessTraining() {
                     {message}
                     </p>
         )}
-        <form action="">
+        <form onSubmit={handleSubmit(submitCARQPTReq)}>
             <div className="px-10 md:px-20 lg:px-44">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2 my-4">

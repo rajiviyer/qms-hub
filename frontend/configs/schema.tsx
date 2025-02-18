@@ -51,6 +51,16 @@ export interface CARCANeed {
   ca_needed: string;
 };
 
+export interface CARQPTReq {
+  car_number: string;
+  qms_required: string;
+  qms_required_comments: string;
+  qms_documentation_required: string;
+  qms_documentation_required_comments: string;
+  training_required: string;
+  training_required_comments: string;
+}
+
 export interface CarRCAType {
   car_number: string;
   rca_type: string;
