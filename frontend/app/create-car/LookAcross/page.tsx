@@ -57,6 +57,8 @@ export default function LookAcross() {
                     console.log("Setting the retrieved data in LookAcross");
                     setCarProblemRedef(data);
                 }
+            }).catch((error) => {
+                console.error('Error fetching car problem redef data:', error);
             });
         }
     }, [car_number]);

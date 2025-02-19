@@ -202,6 +202,8 @@ def retrieve_car_problem_redefinition(car_number: CarNumber, session: DBSession)
         #     """) 
         #     )      
         return car_problem_redef
+    except NoResultFound:
+        print(f"No car problem redef data found for car_number: {car_number['car_number']}")
     except Exception as e:
         print(f"Exception in retrieve_car_problem_redefinition: {e}")
         raise Exception("Failed to retrieve car problem redefinition")        

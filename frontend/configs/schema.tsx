@@ -45,9 +45,9 @@ export interface CARCANeed {
   ca_required: string;
   required_by: string;
   comment: string;
-  severity: number;
-  occurrence: number;
-  rpn: number;
+  severity?: number | null;
+  occurrence?: number | null;
+  rpn?: number | null;
   ca_needed: string;
 };
 

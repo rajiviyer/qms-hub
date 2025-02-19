@@ -123,7 +123,7 @@ export default function ValidateCANeed() {
     const { carProblemDesc, setCarProblemDesc,  } = carProblemDescContext;
     const car_number = carProblemDesc?.car_number;
 
-    const [ carCANeed, setCarCANeed ] = useState<CARCANeed | null>(null);
+    // const [ carCANeed, setCarCANeed ] = useState<CARCANeed | null>(null);
     const { register, handleSubmit, setValue, watch, reset } = useForm<CARCANeed>({
         defaultValues: {
             car_number: car_number || "",
@@ -164,14 +164,33 @@ export default function ValidateCANeed() {
         }
     }, [car_number, reset]);
 
-    console.log(`carCANeed: ${JSON.stringify(carCANeed)}`);
+    // console.log(`carCANeed: ${JSON.stringify(carCANeed)}`);
     
 
     useEffect(() => {
         const severity = watch("severity") || severityOptions[0].severity_number;
         const occurrence = watch("occurrence") || occurrenceOptions[0].occurrence_number;
         setValue("rpn", severity * occurrence);
-      }, [watch("severity"), watch("occurrence"), setValue]);    
+    }, [watch("severity"), watch("occurrence"), setValue]);
+
+    useEffect(() => {
+        console.log(`ca_required: ${watch("ca_required")}, severity: ${watch("severity")}, rpn: ${watch("rpn")}`);
+        
+        if (watch("ca_required").includes("Yes, Required")) {
+            console.log("ca_needed is Yes");
+            setValue("ca_needed", "Yes"); 
+            setValue("severity", null);
+            setValue("occurrence", null);
+            setValue("rpn", null);
+        }
+        else if ((watch("severity")?.valueOf() !== undefined && watch("severity")! > 8) || (watch("rpn")?.valueOf() !== undefined && watch("rpn")! > 30)) {
+            setValue("ca_needed", "Yes"); 
+        }
+        else {
+            console.log("ca_needed is No");
+            setValue("ca_needed", "No");
+        }
+    }, [watch("ca_required"), watch("severity"), watch("rpn"), setValue]);         
    
     const submitCARCANeed = async (data: CARCANeed) => {
         try {
@@ -192,7 +211,13 @@ export default function ValidateCANeed() {
                 // setCarCANeed(data);
                     setMessageType('success');
                     setMessage(responseMessage);
-                    router?.push('/create-car/DefineRCAType');
+                    if (watch("ca_needed") === "Yes") {
+                        router?.push('/create-car/DefineRCAType');    
+                    }
+                    else {
+                        router?.push('/create-car');
+                    }
+                    
                 }
                 else {
                     setMessageType('error');
@@ -261,82 +286,93 @@ export default function ValidateCANeed() {
                             {...register("comment", { required: true})}
                         />
                     </div>
-                    <div className="col-span-2 my-4">
-                        <h3 className="text-2xl text-teal-900 font-medium text-center">Risk Analysis</h3>
-                    </div>
-                    <div>   
-                        <label className="text-sm font-bold">❗Severity</label>
-                        <Select
-                            onValueChange={(value) => setValue("severity", parseInt(value))}
-                            defaultValue={(watch("severity") ?? severityOptions[0].severity_number).toString()}
-                        >
-                            <SelectTrigger className="">
-                                <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {severityOptions.map((option) => (
-                                    <SelectItem key={option.severity_number} value={option.severity_number.toString()}>
-                                        {option.severity}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>                                  
-                    <div>
-                        <label className="text-sm font-bold">❗Severity Number</label>
-                        <Input
-                            type="number"
-                            min={1}
-                            max={10}
-                            className="text-xl"
-                            // value={watch("severity").toString()}
-                            readOnly
-                            {...register("severity", { required: true})}
-                        />
-                    </div>
-                    <div>
-                        <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
-                        <Select
-                            onValueChange={(value) => setValue("occurrence", parseInt(value))}
-                            defaultValue={(watch("occurrence") ?? occurrenceOptions[0].occurrence_number).toString()}
-                        >
-                            <SelectTrigger className="">
-                                <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {occurrenceOptions.map((option) => (
-                                    <SelectItem key={option.occurrence_number} value={option.occurrence_number.toString()}>
-                                        {option.occurrence}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div>
-                        <label className="text-sm font-bold">❗Occurrence Number</label>
-                        <Input
-                            type="number"
-                            min={1}
-                            max={10}
-                            className="text-xl"
-                            readOnly
-                            {...register("occurrence", { required: true})}
-                        />
-                    </div>                
-                    <div>
-                        <label className="text-sm font-bold">📏RPN (Risk Priority Number)</label>
-                        <Input
-                            type="number"
-                            min={1}
-                            max={100}
-                            className="text-xl"
-                            value={(watch("occurrence") * watch("severity")).toString()}
-                            readOnly
-                            {...register("rpn", { required: true})}
-                        />
-                    </div>
-                    <div>
-                        <label className="text-sm font-bold">CA Needed</label>
+                </div>
+                {
+                    (watch("ca_required").includes("Not Required")) && (
+                        <div className="grid grid-cols-2 gap-4 my-4">
+                            <div className="col-span-2">
+                                <h3 className="text-2xl text-teal-900 font-medium text-center">Risk Analysis</h3>
+                            </div>
+                            <div>   
+                                <label className="text-sm font-bold">❗Severity</label>
+                                <Select
+                                    onValueChange={(value) => setValue("severity", parseInt(value))}
+                                    defaultValue={(watch("severity") ?? severityOptions[0].severity_number).toString()}
+                                >
+                                    <SelectTrigger className="">
+                                        <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {severityOptions.map((option) => (
+                                            <SelectItem key={option.severity_number} value={option.severity_number.toString()}>
+                                                {option.severity}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>                                  
+                            <div>
+                                <label className="text-sm font-bold">❗Severity Number</label>
+                                <Input
+                                    type="number"
+                                    min={1}
+                                    max={10}
+                                    className="text-xl"
+                                    // value={watch("severity").toString()}
+                                    readOnly
+                                    {...register("severity", { required: true})}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-bold">⚡Occurrence During Last 12 Months</label>
+                                <Select
+                                    onValueChange={(value) => setValue("occurrence", parseInt(value))}
+                                    defaultValue={(watch("occurrence") ?? occurrenceOptions[0].occurrence_number).toString()}
+                                >
+                                    <SelectTrigger className="">
+                                        <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {occurrenceOptions.map((option) => (
+                                            <SelectItem key={option.occurrence_number} value={option.occurrence_number.toString()}>
+                                                {option.occurrence}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="text-sm font-bold">❗Occurrence Number</label>
+                                <Input
+                                    type="number"
+                                    min={1}
+                                    max={10}
+                                    className="text-xl"
+                                    readOnly
+                                    {...register("occurrence", { required: true})}
+                                />
+                            </div>                
+                            <div>
+                                <label className="text-sm font-bold">📏RPN (Risk Priority Number)</label>
+                                <Input
+                                    type="number"
+                                    min={1}
+                                    max={100}
+                                    className="text-xl"
+                                    value={watch("rpn")?.toString() ?? ""}
+                                    readOnly
+                                    {...register("rpn", { required: true})}
+                                />
+                            </div>                            
+                        </div>
+                    )
+                }
+                <div className="grid grid-cols-2 gap-4 my-4">
+                    <div className="col-span-2">
+                        <div className="col-span-2">
+                            <h3 className="text-2xl text-teal-900 font-large text-center">CA Needed: {watch("ca_needed")}</h3>
+                        </div>
+                        {/* <label className="text-sm font-bold">CA Needed</label>
                         <Select 
                             onValueChange={(value) => setValue("ca_needed", value)}
                             defaultValue={watch("ca_needed") || "Yes"}
@@ -348,7 +384,7 @@ export default function ValidateCANeed() {
                                 <SelectItem value="Yes">Yes</SelectItem>
                                 <SelectItem value="No">No</SelectItem>
                             </SelectContent>
-                        </Select>
+                        </Select> */}
                     </div>
                 </div>             
             </div>    
@@ -363,7 +399,7 @@ export default function ValidateCANeed() {
                             className="text-primary"
                             type="submit"
                         >
-                            Next
+                            {watch("ca_needed") === "Yes" ? "Next" : "Submit"}
                         </Button>
             </div>        
         </form>  

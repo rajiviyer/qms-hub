@@ -66,9 +66,9 @@ class CARCANeed(SQLModel, table=True):
     ca_required: str
     required_by: str
     comment: str
-    severity: int
-    occurrence: int
-    rpn: int
+    severity: Optional[int]
+    occurrence: Optional[int]
+    rpn: Optional[int]
     ca_needed: str
     class Config:
         schema = DB_SCHEMA
