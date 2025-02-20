@@ -131,6 +131,7 @@ export default function DefineRCAType() {
                     <Select
                         onValueChange={(value) => changeRCAType(value)}
                         defaultValue={carRCAType?.rca_type || rcaTypeOptions[2]}
+                        value={carRCAType?.rca_type || rcaTypeOptions[2]}
                     >
                         <SelectTrigger className="">
                             <SelectValue placeholder="Select" />

@@ -188,6 +188,18 @@ export default function ValidateCANeed() {
         }
         else {
             console.log("ca_needed is No");
+            if (watch("severity") === null){
+                setValue("severity", severityOptions[0].severity_number); // First severity option
+            }
+                
+            if (watch("occurrence") === null){
+                setValue("occurrence", occurrenceOptions[0].occurrence_number); // First occurrence option
+            }
+                
+            if (watch("rpn") === null){
+                setValue("rpn", severityOptions[0].severity_number * occurrenceOptions[0].occurrence_number);
+            }
+                
             setValue("ca_needed", "No");
         }
     }, [watch("ca_required"), watch("severity"), watch("rpn"), setValue]);         
@@ -251,13 +263,14 @@ export default function ValidateCANeed() {
             <div className="px-10 md:px-20 lg:px-44">
                 <div className="grid grid-cols-2 gap-4">   
                     <div>
-                        <label className="text-sm font-bold">📑CA Required by Competent Authority (Ex. Management, Customer, Auditors)</label>
+                        <label className="text-sm font-bold">📑CA Required by Competent Authority</label>
                         <Select
                             onValueChange={(value) => setValue("ca_required", value)}
                             defaultValue={watch("ca_required") || caRequiredOptions[0]}
+                            value={watch("ca_required")}
                         >
                             <SelectTrigger className="">
-                                <SelectValue placeholder="Select" />
+                                <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 {caRequiredOptions.map((option) => (
@@ -298,6 +311,7 @@ export default function ValidateCANeed() {
                                 <Select
                                     onValueChange={(value) => setValue("severity", parseInt(value))}
                                     defaultValue={(watch("severity") ?? severityOptions[0].severity_number).toString()}
+                                    value={(watch("severity") ?? severityOptions[0].severity_number).toString()}
                                 >
                                     <SelectTrigger className="">
                                         <SelectValue placeholder="Select" />
@@ -328,6 +342,7 @@ export default function ValidateCANeed() {
                                 <Select
                                     onValueChange={(value) => setValue("occurrence", parseInt(value))}
                                     defaultValue={(watch("occurrence") ?? occurrenceOptions[0].occurrence_number).toString()}
+                                    value={(watch("occurrence") ?? occurrenceOptions[0].occurrence_number).toString()}
                                 >
                                     <SelectTrigger className="">
                                         <SelectValue placeholder="Select" />
