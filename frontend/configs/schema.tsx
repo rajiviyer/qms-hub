@@ -66,6 +66,11 @@ export interface CarRCAType {
   rca_type: string;
 }
 
+export interface CarImmediateRCA {
+  car_number: string;
+  root_cause: string;
+}
+
 export interface CARRootCause {
   car_number: string;
   root_cause: string;

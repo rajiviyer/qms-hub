@@ -94,6 +94,23 @@ class FishboneAnalysis(SQLModel, table=True):
     class Config:
         schema = DB_SCHEMA
         
+class SimpleRootCauseAnalysis(SQLModel, table=True):
+    __tablename__ = "car_simple_root_cause_analysis" 
+    id: int = Field(default=None, primary_key=True)
+    car_number: str = Field(index=True)
+    row_header: str
+    column_header: str
+    root_cause: str = Field(default="")
+    class Config:
+        schema = DB_SCHEMA    
+
+class ImmediateRootCauseAnalysis(SQLModel, table=True):
+    __tablename__ = "car_immediate_root_cause_analysis" 
+    id: int = Field(default=None, primary_key=True)
+    car_number: str = Field(index=True)
+    root_cause: str = Field(default="")
+    class Config:
+        schema = DB_SCHEMA               
 
 class CARCorrectiveActionPlan(SQLModel, table=True):
     __tablename__ = "car_corrective_action_plan"
@@ -119,7 +136,17 @@ class FishboneEntry(SQLModel):
 
 class FishboneData(SQLModel):
     car_number: str
-    entries: List[FishboneEntry]  
+    entries: List[FishboneEntry]
+    
+class SimpleRootCauseEntry(SQLModel):
+    car_number: str
+    row_header: str
+    column_header: str
+    root_cause: str 
+
+class SimpleRootCauseData(SQLModel):
+    car_number: str
+    entries: List[SimpleRootCauseEntry]       
     
 class CARCorrectiveActionPlanEntry(SQLModel):
     car_number: str

@@ -14,8 +14,8 @@ import {
 import { Button } from '@/components/ui/button';
 
 const RCAPages: Record<string, string> = {
-    "Immediate Cause Only": "", 
-    "Simple Root Cause": "",
+    "Immediate Cause Only": "/create-car/ImmediateRootCauseAnalysis", 
+    "Simple Root Cause": "/create-car/SimpleRootCauseAnalysis",
     "Fish Bone Analysis": "/create-car/FishBoneAnalysis",
 }
 

@@ -18,7 +18,9 @@ from .controllers.car_controller import (retrieve_car_problem_desc, add_car_prob
                                          retrieve_car_rca_type, add_car_rca_type_selection, add_car_fishbone_analysis, 
                                          retrieve_car_fishbone_analysis, retrieve_car_rootcauses, 
                                          add_car_cap_info, retrieve_car_cap_data, add_car_qpt_requirement, retrieve_car_qpt_requirement,
-                                         add_car_ca_effectiveness_plan, retrieve_car_ca_effectiveness_plan
+                                         add_car_ca_effectiveness_plan, retrieve_car_ca_effectiveness_plan,
+                                         add_car_simple_root_cause_analysis, retrieve_car_simple_root_cause_analysis,
+                                         add_car_immediate_root_cause_analysis, retrieve_car_immediate_root_cause_analysis
                                          )
 
 
@@ -208,3 +210,27 @@ def get_car_ca_effectiveness_plan(car_ca_effectiveness_plan: Annotated[dict, Dep
     End Point to retrieve CAR CA Effectiveness Plan Data from DB
     """
     return car_ca_effectiveness_plan
+
+@app.post("/api/get_car_simple_root_cause_analysis")
+def get_car_simple_root_cause_analysis(car_simple_root_cause_analysis: Annotated[dict, Depends(retrieve_car_simple_root_cause_analysis)]):
+    """ 
+    End Point to retrieve CAR Simple Root Cause Analysis Data from DB
+    """
+    return car_simple_root_cause_analysis
+
+@app.post("/api/add_car_simple_root_cause_analysis")
+def add_car_simple_root_cause_analysis(message: Annotated[str, Depends(add_car_simple_root_cause_analysis)]):    
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/add_car_immediate_root_cause_analysis")
+def add_car_immediate_root_cause_analysis(message: Annotated[str, Depends(add_car_immediate_root_cause_analysis)]):    
+    print(f"message: {message}")
+    return message
+
+@app.post("/api/get_car_immediate_root_cause_analysis")
+def get_car_immediate_root_cause_analysis(car_immediate_root_cause_analysis: Annotated[dict, Depends(retrieve_car_immediate_root_cause_analysis)]):
+    """ 
+    End Point to retrieve CAR Immediate Root Cause Analysis Data from DB
+    """
+    return car_immediate_root_cause_analysis

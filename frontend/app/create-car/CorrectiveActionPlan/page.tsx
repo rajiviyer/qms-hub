@@ -7,6 +7,12 @@ import { Input } from '@/components/ui/input';
 import { CARProblemDesc, CARRootCause } from '@/configs/schema';
 import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
 
+const RCAPages: Record<string, string> = {
+  "Immediate Cause Only": "", 
+  "Simple Root Cause": "/create-car/SimpleRootCauseAnalysis",
+  "Fish Bone Analysis": "/create-car/FishBoneAnalysis",
+}
+
 export default function CorrectiveActionPlan() {
     const [ carRootCauses, setCARRootCauses ] = useState<CARRootCause[]>([]);    
     const [gridData, setGridData] = useState<Record<string, 
@@ -56,11 +62,19 @@ export default function CorrectiveActionPlan() {
       }, [car_number]);
       
     const handlePrevious = () => {
-        router?.push('FishBoneAnalysis');
-    }
-    
-    const handleNext = () => {
-        router?.push("/create-car/QMSProcessTraining");
+      const response = fetch(`${API_URL}/api/get_car_rca_type`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({"car_number": car_number}),
+      }).then(response => response.json())
+      .then(data => {
+        if (data) {
+            console.log(`RCAType in CorrectiveActionPlan Page: ${JSON.stringify(data)}`);
+            router?.push(RCAPages[data?.rca_type])
+        }
+      }).catch(error => {
+        console.error('Error in fetching rca type data', error);
+      });       
     }
 
     const handleInputChange = (rootCause: string, rowIndex: number, field: keyof (typeof gridData)[string][number], value: string) => {
@@ -129,7 +143,9 @@ export default function CorrectiveActionPlan() {
                 if (/success/i.test(responseMessage)) {
                 setMessageType('success');
                 setMessage("Successfully Added Data");
-                } else {
+                router?.push("/create-car/QMSProcessTraining");
+                } 
+                else {
                 setMessageType('error');
                 setMessage(responseMessage);
                 }
@@ -145,43 +161,51 @@ export default function CorrectiveActionPlan() {
 
     return (
         <div className="p-6 space-y-6">
-        {message && <p className={`text-center ${messageType === 'error' ? 'text-red-500' : 'text-green-500'}`}>{message}</p>}
-        {carRootCauses.map((option: CARRootCause, index: number) => (
-          <div key={option.root_cause} className="border rounded-lg p-4 shadow-md">
-            <h2 className="text-lg font-semibold mb-2">Root Cause: {option.root_cause}</h2>
-            <Button onClick={() => addRow(option.root_cause)} className="mb-4">Add Row</Button>
-            <table className="table-auto border-collapse border border-gray-300 w-full">
-              <thead>
-                <tr>
-                  <th className="border border-gray-300 px-2 py-2 bg-gray-100">Corrective Action</th>
-                  <th className="border border-gray-300 px-2 py-2 bg-gray-100">Responsibility</th>
-                  <th className="border border-gray-300 px-2 py-2 bg-gray-100">Target Date</th>
-                  <th className="border border-gray-300 px-2 py-2 bg-gray-100">Actual Date</th>
-                  <th className="border border-gray-300 px-2 py-2 bg-gray-100">Status</th>
-                  <th className="border border-gray-300 px-2 py-2 bg-gray-100">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gridData[option.root_cause]?.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    <td><Textarea value={row.corrective_action} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "corrective_action", e.target.value)} /></td>
-                    <td><Textarea value={row.responsibility} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "responsibility", e.target.value)} /></td>
-                    <td><Input type="date" value={row.target_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "target_date", e.target.value)} /></td>
-                    <td><Input type="date" value={row.actual_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "actual_date", e.target.value)} /></td>
-                    <td><Textarea value={row.status} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "status", e.target.value)} /></td>
-                    <td>{rowIndex > 0 && <Button onClick={() => removeRow(option.root_cause, rowIndex)} className="bg-red-500 text-white">X</Button>}</td>
+          {message && <p className={`text-center ${messageType === 'error' ? 'text-red-500' : 'text-green-500'}`}>{message}</p>}
+          {carRootCauses.map((option: CARRootCause, index: number) => (
+            <div key={option.root_cause} className="border rounded-lg p-4 shadow-md">
+              <h2 className="text-lg font-semibold mb-2">Root Cause: {option.root_cause}</h2>
+              <Button onClick={() => addRow(option.root_cause)} className="mb-4">Add Row</Button>
+              <table className="table-auto border-collapse border border-gray-300 w-full">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 px-2 py-2 bg-gray-100">Corrective Action</th>
+                    <th className="border border-gray-300 px-2 py-2 bg-gray-100">Responsibility</th>
+                    <th className="border border-gray-300 px-2 py-2 bg-gray-100">Target Date</th>
+                    <th className="border border-gray-300 px-2 py-2 bg-gray-100">Actual Date</th>
+                    <th className="border border-gray-300 px-2 py-2 bg-gray-100">Status</th>
+                    <th className="border border-gray-300 px-2 py-2 bg-gray-100">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-        <Button 
-            onClick={saveData} 
-            className="w-full text-primary mt-5"
-        >
-            Save
-        </Button>
+                </thead>
+                <tbody>
+                  {gridData[option.root_cause]?.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      <td><Textarea value={row.corrective_action} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "corrective_action", e.target.value)} /></td>
+                      <td><Textarea value={row.responsibility} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "responsibility", e.target.value)} /></td>
+                      <td><Input type="date" value={row.target_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "target_date", e.target.value)} /></td>
+                      <td><Input type="date" value={row.actual_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "actual_date", e.target.value)} /></td>
+                      <td><Textarea value={row.status} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "status", e.target.value)} /></td>
+                      <td>{rowIndex > 0 && <Button onClick={() => removeRow(option.root_cause, rowIndex)} className="bg-red-500 text-white">X</Button>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+          <div className="flex justify-between mt-10">
+            <Button
+                className="text-primary"
+                onClick={handlePrevious}
+            >
+                Previous
+            </Button>
+            <Button
+                className="text-primary"
+                onClick={saveData}
+            >
+                Next
+            </Button>
+          </div>  
       </div>
     )
 }

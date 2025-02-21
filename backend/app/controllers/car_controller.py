@@ -1,11 +1,12 @@
 from ..db_models.car_models import (CARProblemDesc, CARPlanningPhase, CARProblemDescForm, 
                                     CARProblemRedef, CARCANeed, CARRCATypeSelection,
                                     FishboneAnalysis, FishboneData, CARCorrectiveActionPlan, CARCorrectiveActionPlanData,
-                                    CARQPTReq, CARCAEffectivenessPlan, CARCAEffectivenessPlanData
+                                    CARQPTReq, CARCAEffectivenessPlan, CARCAEffectivenessPlanData,
+                                    SimpleRootCauseAnalysis, SimpleRootCauseData, ImmediateRootCauseAnalysis
                                     )
 # from ..utils.types import CARProblemDescForm
 from ..utils.types import CarNumber, CarRootCause
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete, insert
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.sql import text
 from typing import Annotated
@@ -278,26 +279,53 @@ def retrieve_car_fishbone_analysis(car_number: CarNumber, session: DBSession):
         print(f"Exception in get_car_fishbone_analysis: {e}")
         raise Exception(f"Exception in get_car_fishbone_analysis: {e}")
     
-def retrieve_car_rootcauses(car_number: CarNumber, session: DBSession):
-    try:
-        query = text("""
-                     select r.car_number, r.data as root_cause from
-                        (select *, rank() over (partition by row_header order by id desc) rnk 
-                            from car_fishbone_analysis cfa  where data <> '' and car_number = :car_number) r
-                            where r.rnk = 1;
-                     """)
+# def retrieve_car_rootcauses(car_number: CarNumber, session: DBSession):
+#     try:
+#         query = text("""
+#                      select r.car_number, r.data as root_cause from
+#                         (select *, rank() over (partition by row_header order by id desc) rnk 
+#                             from car_fishbone_analysis cfa  where data <> '' and car_number = :car_number) r
+#                             where r.rnk = 1;
+#                      """)
             
+#         result = session.execute(query, {"car_number": car_number["car_number"]})
+#         column_names = result.keys()
+#         rows = result.fetchall()
+#         car_rootcauses = [dict(zip(column_names, row)) for row in rows]
+#         print(f"car_rootcauses: {car_rootcauses}")
+#         return car_rootcauses
+#     except NoResultFound:
+#         print(f"No car_rootcauses found for car_number: {car_number['car_number']}")
+#     except Exception as e:
+#         print(f"Exception in retrieve_car_rootcauses: {e}")
+#         raise Exception(f"Exception in retrieve_car_rootcauses: {e}")
+
+def retrieve_car_rootcauses(car_number: CarNumber, session: DBSession):
+    """
+    Calls the PostgreSQL function get_root_cause_analysis and returns the result.
+    """
+    try:
+        query = text("SELECT * FROM get_root_cause_analysis(:car_number)")
         result = session.execute(query, {"car_number": car_number["car_number"]})
-        column_names = result.keys()
-        rows = result.fetchall()
-        car_rootcauses = [dict(zip(column_names, row)) for row in rows]
-        print(f"car_rootcauses: {car_rootcauses}")
-        return car_rootcauses
-    except NoResultFound:
-        print(f"No car_rootcauses found for car_number: {car_number['car_number']}")
+        records = result.fetchall()
+
+        if not records:
+            print(f"No car_rootcauses found for car_number: {car_number['car_number']}")
+            
+        print(f"records: {records}")            
+
+        # Convert records to list of dictionaries
+        return [
+            {
+                "car_number": row[0],
+                "root_cause": row[1]
+            }
+            for row in records
+        ]
+
     except Exception as e:
         print(f"Exception in retrieve_car_rootcauses: {e}")
-        raise Exception(f"Exception in retrieve_car_rootcauses: {e}")
+        raise Exception(f"Exception in retrieve_car_rootcauses: {e}")   
     
 def add_car_cap_info(car_cap_data: CARCorrectiveActionPlanData, session: DBSession):
     try:
@@ -428,3 +456,90 @@ def retrieve_car_ca_effectiveness_plan(car_number: CarNumber, session: DBSession
     except Exception as e:
         print(f"Exception in retrieve_car_ca_effectiveness_plan: {e}")
         raise Exception(f"Exception in retrieve_car_ca_effectiveness_plan: {e}")    
+
+def add_car_simple_root_cause_analysis(simple_root_cause_data: SimpleRootCauseData, session: DBSession):
+    try:
+        print(f"SimpleRootCauseData: {simple_root_cause_data}")
+        # delete existing data for car_number and add new data into the SimpleRootCauseAnalysis table
+        stmt = delete(SimpleRootCauseAnalysis).where(SimpleRootCauseAnalysis.car_number == simple_root_cause_data.car_number)
+        session.execute(stmt)
+        session.commit()
+        
+        # add new data in bulk into the SimpleRootCauseAnalysis table
+        bulk_data = [
+            {
+                "car_number": entry.car_number,
+                "row_header": entry.row_header,
+                "column_header": entry.column_header,
+                "root_cause": entry.root_cause,
+            }
+            for entry in simple_root_cause_data.entries
+        ]
+        
+        # Perform bulk insert
+        session.bulk_insert_mappings(SimpleRootCauseAnalysis, bulk_data)
+        session.commit()        
+
+        return "Success"
+        
+        # for entry in simple_root_cause_data.entries:
+        #     stmt = select(SimpleRootCauseAnalysis).where(
+        #         (SimpleRootCauseAnalysis.car_number == entry.car_number) & 
+        #         (SimpleRootCauseAnalysis.row_header == entry.row_header) & 
+        #         (SimpleRootCauseAnalysis.column_header == entry.column_header)                
+        #     )
+        #     existing_entry = session.exec(stmt).first()
+        #     if existing_entry:
+        #         existing_entry.data = entry.data
+        #         session.add(existing_entry)
+        #     else:
+        #         new_entry = SimpleRootCauseAnalysis(
+        #             car_number=entry.car_number,
+        #             row_header=entry.row_header,
+        #             column_header=entry.column_header,
+        #             root_cause=entry.root_cause
+        #         )
+        #         session.add(new_entry)
+                
+        # session.commit()
+        # return "Success"
+    except Exception as e:
+        print(f"Exception in add_car_simple_root_cause_analysis: {e}")
+        return "Error: Failed to add data using add_car_simple_root_cause_analysis"
+
+def retrieve_car_simple_root_cause_analysis(car_number: CarNumber, session: DBSession):
+    try:
+        stmt = select(SimpleRootCauseAnalysis).where(SimpleRootCauseAnalysis.car_number == car_number["car_number"])
+        simple_root_cause_data = session.exec(stmt).all()
+        return simple_root_cause_data
+    except NoResultFound:
+        print(f"No simple root cause data found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_simple_root_cause_analysis: {e}")
+        raise Exception(f"Exception in retrieve_car_simple_root_cause_analysis: {e}")
+    
+def add_car_immediate_root_cause_analysis(immediate_root_cause: ImmediateRootCauseAnalysis, session: DBSession):
+    try:
+        immediate_root_cause_query = text(
+            """
+            INSERT INTO immediate_root_cause_analysis (car_number, root_cause)
+            VALUES (:car_number, :root_cause)
+            """
+        )
+        session.execute(immediate_root_cause_query, immediate_root_cause.dict())
+        session.commit()
+        return "Success"
+    except Exception as e:
+        print(f"Exception in add_car_immediate_root_cause_analysis: {e}")
+        return "Error: Failed to add data using add_car_immediate_root_cause_analysis"
+    
+def retrieve_car_immediate_root_cause_analysis(car_number: CarNumber, session: DBSession):
+    try:
+        stmt = select(ImmediateRootCauseAnalysis).where(ImmediateRootCauseAnalysis.car_number == car_number["car_number"])
+        immediate_root_cause_data = session.exec(stmt).one()
+        return immediate_root_cause_data
+    except NoResultFound:
+        print(f"No immediate root cause data found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_immediate_root_cause_analysis: {e}")
+        raise Exception(f"Exception in retrieve_car_immediate_root_cause_analysis: {e}")    
