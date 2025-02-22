@@ -15,7 +15,7 @@ export default function ImmediateRootCauseAnalysis() {
   const { carProblemDesc } = carProblemDescContext;
   const car_number = carProblemDesc?.car_number;
 
-  console.log(`In Simple Root Cause page, car number: ${car_number}`);
+  console.log(`In Immediate Root Cause page, car number: ${car_number}`);
 
 const [ carImmediateRCA, setCarImmediateRCA ] = useState<CarImmediateRCA | null>({
     car_number: car_number || "",

@@ -83,3 +83,10 @@ export interface UserEmail {
 export interface CarNumber {
   car_number: string;
 };
+
+export interface CarLog {
+  car_number: string;
+  initiation_date: string;
+  source: string;
+  target_date: string;
+}

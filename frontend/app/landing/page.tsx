@@ -1,6 +1,7 @@
 import React from "react";
 import Welcome from "./components/Welcome";
-import CARList from "./components/CARList";
+// import CARList from "./components/CARList";
+import CARLogs from "./components/CARLogs";
 import SideBar from "./components/SideBar";
 
 export default function LandingPage() {
@@ -11,7 +12,8 @@ export default function LandingPage() {
       </div>
       <div className="md:ml-64">
         <Welcome />
-        <CARList />  
+        {/* <CARList />   */}
+        <CARLogs />
       </div>
     </div>
   )

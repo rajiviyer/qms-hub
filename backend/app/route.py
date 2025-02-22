@@ -20,7 +20,8 @@ from .controllers.car_controller import (retrieve_car_problem_desc, add_car_prob
                                          add_car_cap_info, retrieve_car_cap_data, add_car_qpt_requirement, retrieve_car_qpt_requirement,
                                          add_car_ca_effectiveness_plan, retrieve_car_ca_effectiveness_plan,
                                          add_car_simple_root_cause_analysis, retrieve_car_simple_root_cause_analysis,
-                                         add_car_immediate_root_cause_analysis, retrieve_car_immediate_root_cause_analysis
+                                         add_car_immediate_root_cause_analysis, retrieve_car_immediate_root_cause_analysis,
+                                         retrieve_car_logs
                                          )
 
 
@@ -234,3 +235,10 @@ def get_car_immediate_root_cause_analysis(car_immediate_root_cause_analysis: Ann
     End Point to retrieve CAR Immediate Root Cause Analysis Data from DB
     """
     return car_immediate_root_cause_analysis
+
+@app.post("/api/get_car_logs")
+def get_car_logs(car_logs: Annotated[dict, Depends(retrieve_car_logs)]):
+    """ 
+    End Point to retrieve CAR Logs Data from DB
+    """
+    return car_logs

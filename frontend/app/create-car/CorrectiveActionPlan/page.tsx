@@ -42,6 +42,7 @@ export default function CorrectiveActionPlan() {
             .then(response => response.json())
             .then(data => {
               if (data) {
+                console.log(`Root Causes in CorrectiveActionPlan Page: ${JSON.stringify(data)}`);
                 const extractedRootCauses = data.map((item: { root_cause: string }) => item.root_cause);
                 setCARRootCauses(data);
                 const initialGridData = extractedRootCauses.reduce((acc: any, rootCause: string) => {

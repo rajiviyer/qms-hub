@@ -5,7 +5,7 @@ from ..db_models.car_models import (CARProblemDesc, CARPlanningPhase, CARProblem
                                     SimpleRootCauseAnalysis, SimpleRootCauseData, ImmediateRootCauseAnalysis
                                     )
 # from ..utils.types import CARProblemDescForm
-from ..utils.types import CarNumber, CarRootCause
+from ..utils.types import CarNumber, CarRootCause, UserOrg
 from sqlmodel import Session, select, delete, insert
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.sql import text
@@ -522,8 +522,10 @@ def add_car_immediate_root_cause_analysis(immediate_root_cause: ImmediateRootCau
     try:
         immediate_root_cause_query = text(
             """
-            INSERT INTO immediate_root_cause_analysis (car_number, root_cause)
+            INSERT INTO car_immediate_root_cause_analysis (car_number, root_cause)
             VALUES (:car_number, :root_cause)
+            ON CONFLICT (car_number) DO UPDATE
+            SET root_cause = :root_cause;
             """
         )
         session.execute(immediate_root_cause_query, immediate_root_cause.dict())
@@ -542,4 +544,28 @@ def retrieve_car_immediate_root_cause_analysis(car_number: CarNumber, session: D
         print(f"No immediate root cause data found for car_number: {car_number['car_number']}")
     except Exception as e:
         print(f"Exception in retrieve_car_immediate_root_cause_analysis: {e}")
-        raise Exception(f"Exception in retrieve_car_immediate_root_cause_analysis: {e}")    
+        raise Exception(f"Exception in retrieve_car_immediate_root_cause_analysis: {e}")
+    
+def retrieve_car_logs(user_org: UserOrg, session: DBSession): 
+    try:
+        query = text("""
+            select car_number, initiation_date::date::text, source, 
+	            (select max(cpp.target_date) from car_planning_phase cpp where cpp.car_number = cpd.car_number)::date::text as target_date
+            from car_problem_definition cpd ;
+        """)
+        # car_logs = session.execute(query, {"user_org": user_org["user_org"]}).all()
+        car_logs = session.execute(query).fetchall()
+        return [
+            {
+                "car_number": car_number,
+                "initiation_date": initiation_date,
+                "source": source,
+                "target_date": target_date
+            }
+            for car_number, initiation_date, source, target_date in car_logs
+        ]
+    except NoResultFound:
+        print(f"No car logs found for user_org: {user_org['user_org']}")
+    except Exception as e:
+        print(f"Exception in retrieve_car_logs: {e}")
+        raise Exception(f"Exception in retrieve_car_logs: {e}")

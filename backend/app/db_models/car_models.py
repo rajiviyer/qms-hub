@@ -87,7 +87,7 @@ class CARRCATypeSelection(SQLModel, table=True):
 class FishboneAnalysis(SQLModel, table=True):
     __tablename__ = "car_fishbone_analysis" 
     id: int = Field(default=None, primary_key=True)
-    car_number: str = Field(index=True)
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
     row_header: str
     column_header: str
     data: str = Field(default="")
@@ -97,7 +97,7 @@ class FishboneAnalysis(SQLModel, table=True):
 class SimpleRootCauseAnalysis(SQLModel, table=True):
     __tablename__ = "car_simple_root_cause_analysis" 
     id: int = Field(default=None, primary_key=True)
-    car_number: str = Field(index=True)
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
     row_header: str
     column_header: str
     root_cause: str = Field(default="")
@@ -106,8 +106,10 @@ class SimpleRootCauseAnalysis(SQLModel, table=True):
 
 class ImmediateRootCauseAnalysis(SQLModel, table=True):
     __tablename__ = "car_immediate_root_cause_analysis" 
-    id: int = Field(default=None, primary_key=True)
-    car_number: str = Field(index=True)
+    __table_args__ = (
+        PrimaryKeyConstraint('car_number', name='car_irca_pk'),
+    )    
+    car_number: str = Field(foreign_key="car_problem_definition.car_number")
     root_cause: str = Field(default="")
     class Config:
         schema = DB_SCHEMA               
