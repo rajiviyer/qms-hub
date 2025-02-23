@@ -45,8 +45,26 @@ export default function CorrectiveActionPlan() {
                 console.log(`Root Causes in CorrectiveActionPlan Page: ${JSON.stringify(data)}`);
                 const extractedRootCauses = data.map((item: { root_cause: string }) => item.root_cause);
                 setCARRootCauses(data);
+                console.log(`extractedRootCauses: ${JSON.stringify(extractedRootCauses)}`);
+                
+
+            // Retrieve existing corrective action plan
+            fetch(`${API_URL}/api/get_car_cap_data`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ car_number: car_number, root_causes: extractedRootCauses }),
+            })
+              .then(response => response.json())
+              .then(capData => {
                 const initialGridData = extractedRootCauses.reduce((acc: any, rootCause: string) => {
-                  acc[rootCause] = [{
+                  const existingData = capData.filter((item: any) => item.root_cause === rootCause);
+                  acc[rootCause] = existingData.length > 0 ? existingData.map((item: any) => ({
+                    corrective_action: item.corrective_action || "",
+                    responsibility: item.responsibility || "",
+                    target_date: item.target_date || "",
+                    actual_date: item.actual_date || "",
+                    status: item.status || "",
+                  })) : [{
                     corrective_action: "",
                     responsibility: "",
                     target_date: "",
@@ -56,8 +74,10 @@ export default function CorrectiveActionPlan() {
                   return acc;
                 }, {});
                 setGridData(initialGridData);
-              }
-            })
+              })
+              .catch(error => console.error('Error fetching corrective action plan:', error));
+          }
+        })
             .catch(error => console.error('Error fetching root causes:', error));
         }
       }, [car_number]);

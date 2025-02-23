@@ -569,3 +569,50 @@ def retrieve_car_logs(user_org: UserOrg, session: DBSession):
     except Exception as e:
         print(f"Exception in retrieve_car_logs: {e}")
         raise Exception(f"Exception in retrieve_car_logs: {e}")
+    
+def retrieve_car_problem_desc(car_number: CarNumber, session: DBSession):
+    # retrieve data from car_problem_desc table & car_planning_phase     table
+    # return data to frontend
+    try:
+        car_problem_desc_query = text("""
+                                      with
+                                        car_num_data as (select :car_number as car_num),
+                                        lacc_data as (select * from car_planning_phase, car_num_data 
+                                                        where car_number = car_num_data.car_num and phase = 'Look Across, Correct, Contain'),
+                                        ca_phase_data as (select * from car_planning_phase, car_num_data 
+                                                        where car_number = car_num_data.car_num and phase = 'Corrective Action (CA) Implementation'),
+                                        ca_desc_data as (select * from car_problem_definition cpd, car_num_data where car_number = car_num_data.car_num )
+                                        select ca_desc_data.car_number, ca_desc_data.initiation_date::date::text, 
+                                            ca_desc_data.initiator, ca_desc_data.recipient,
+                                            ca_desc_data.coordinator, ca_desc_data.source, ca_desc_data.description,
+                                            lacc_data.phase as lacc_phase, lacc_data.responsibility as lacc_responsibility, 
+                                            lacc_data.target_date::date::text as lacc_target_date,
+                                            ca_phase_data.phase as ca_phase, ca_phase_data.responsibility as ca_responsibility, 
+                                            ca_phase_data.target_date::date::text as ca_target_date 
+                                        from lacc_data, ca_phase_data, ca_desc_data
+                                    """)
+        car_problem_desc_data = session.execute(car_problem_desc_query, {"car_number": car_number["car_number"]}).one()
+        car_number, initiation_date, initiator, recipient, coordinator, source, description, \
+            lacc_phase, lacc_responsibility, lacc_target_date, ca_phase, ca_responsibility, ca_target_date = car_problem_desc_data
+        car_problem_desc = {
+            "car_number": car_number,
+            "initiation_date": initiation_date,
+            "initiator": initiator,
+            "recipient": recipient,
+            "coordinator": coordinator,
+            "source": source,
+            "description": description,
+            "lacc_phase": lacc_phase,
+            "lacc_responsibility": lacc_responsibility,
+            "lacc_target_date": lacc_target_date,
+            "ca_phase": ca_phase,
+            "ca_responsibility": ca_responsibility,
+            "ca_target_date": ca_target_date
+        }
+        return car_problem_desc
+    except NoResultFound:
+        print(f"No car problem desc data found for car_number: {car_number['car_number']}")
+    except Exception as e:
+        print(f"Exception in get_car_problem_desc: {e}")
+        raise Exception(f"Exception in get_car_problem_desc: {e}")
+    
