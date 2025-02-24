@@ -162,6 +162,7 @@ export default function LookAcross() {
             <div className="flex justify-between mt-10">
                     <Button
                         className="text-primary"
+                        type="button"
                         onClick={handlePrevious}
                     >
                         Previous

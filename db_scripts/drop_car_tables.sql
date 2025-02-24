@@ -1,0 +1,11 @@
+drop table if exists car_qpt_requirements;
+drop table if exists car_corrective_action_plan;
+drop table if exists car_ca_effectiveness_plan;
+drop table if exists car_fishbone_analysis;
+drop table if exists car_immediate_root_cause_analysis;
+drop table if exists car_simple_root_cause_analysis ;
+drop table if exists car_ca_need ;
+drop table if exists car_problem_redefinition ;
+drop table if exists car_rca_type_selection ;
+drop table if exists car_planning_phase ;
+drop table if exists car_problem_definition ;

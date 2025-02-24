@@ -17,7 +17,7 @@ class CarNumber(TypedDict):
     
 class CarRootCause(TypedDict):
     car_number: str
-    root_cause: str
+    root_causes: List[str]
     
 class UserOrg(TypedDict):
     user_org: str

@@ -36,6 +36,7 @@ export default function FishBoneAnalysis() {
   );
 
   const [focusedCell, setFocusedCell] = useState<{ row: number; col: number } | null>(null);
+  const [lastEditedColumn, setLastEditedColumn] = useState<{ [key: number]: number }>({});
 
   // Fetch existing fishbone data from backend when page loads
   useEffect(() => {
@@ -79,6 +80,10 @@ export default function FishBoneAnalysis() {
             setRowHeaders(newRowHeaders);
             setColumnHeaders(newColumnHeaders);
             setGridData(newGrid);
+
+            // Apply color coding for last non-empty column per row
+            updateLastColumnHighlight(newGrid);
+
           }
         }).catch(error => {
           console.error("Error fetching fishbone data:", error);
@@ -86,11 +91,61 @@ export default function FishBoneAnalysis() {
       }
   }, [car_number]);
 
+  // Function to highlight last non-empty column per row
+  const updateLastColumnHighlight = (grid: string[][]) => {
+    const newLastEditedColumn: { [key: number]: number } = {};
+
+    grid.forEach((row, rowIndex) => {
+      const lastColumnIndex = row.reduce(
+        (lastIndex, cell, index) => (cell.trim() !== "" ? index : lastIndex),
+        -1
+      );
+
+      // Reset previous highlight before setting new one
+      if (lastEditedColumn[rowIndex] !== undefined) {
+        document.getElementById(`cell-${rowIndex}-${lastEditedColumn[rowIndex]}`)?.classList.remove("text-red-600");
+      }      
+
+      // Add highlight to the new last entry
+      if (lastColumnIndex !== -1) {
+        newLastEditedColumn[rowIndex] = lastColumnIndex;
+        setTimeout(() => {
+          document.getElementById(`cell-${rowIndex}-${lastColumnIndex}`)?.classList.add("text-red-600");
+        }, 100); // Small delay to ensure elements are available in the DOM
+      }
+    });
+
+    setLastEditedColumn(newLastEditedColumn);
+  };  
+
   const handleInputChange = (row: number, col: number, value: string) => {
     const updatedData = [...gridData];
     updatedData[row][col] = value;
     setGridData(updatedData);
   };
+
+  // Handle Focus
+  const handleFocus = (row: number, col: number) => {
+    setFocusedCell({ row, col});
+    // if (lastEditedColumn[row] !== undefined) {
+    //   console.log(`lastEditedColumn[row]: ${JSON.stringify(lastEditedColumn[row])}`);
+    //   document.getElementById(`cell-${row}-${lastEditedColumn[row]}`)?.classList.remove("text-red-600");
+    // }
+  };
+
+  // Handle Blur
+  const handleBlur = (row: number) => {
+    setFocusedCell(null);
+    updateLastColumnHighlight(gridData);    
+    // const lastColumnIndex = gridData[row].reduce((lastIndex, cell, index) => (cell.trim() !== "" ? index : lastIndex), -1);
+
+    // if (lastColumnIndex !== -1) {
+    //   console.log(`lastColumnIndex: ${lastColumnIndex}`);
+      
+    //   setLastEditedColumn((prev) => ({ ...prev, [row]: lastColumnIndex }));
+    //   document.getElementById(`cell-${row}-${lastColumnIndex}`)?.classList.add("text-red-600");
+    // }
+  };  
 
   // Add a Row
   const addRow = () => {
@@ -232,15 +287,24 @@ export default function FishBoneAnalysis() {
               </td>
               {columnHeaders.map((_, colIndex) => (
                 <td key={colIndex} className="border border-gray-300 px-2 py-2 relative">
+                  {/* <Textarea
+                    id={`cell-${rowIndex}-${colIndex}`}
+                    className="w-full h-16 resize-none transition-all duration-300"
+                    value={gridData[rowIndex][colIndex]}
+                    onChange={(e) => handleInputChange(rowIndex, colIndex, e.target.value)}
+                    onFocus={() => handleFocus(rowIndex)}
+                    onBlur={() => handleBlur(rowIndex)}
+                  />                   */}
                   <Textarea
+                    id={`cell-${rowIndex}-${colIndex}`}
                     className={`w-full h-16 resize-none transition-all duration-300 ${
                       focusedCell?.row === rowIndex && focusedCell?.col === colIndex
                         ? "absolute z-10 top-0 left-0 w-80 h-40 bg-white shadow-md"
                         : ""
                     }`}
                     value={gridData[rowIndex][colIndex]}
-                    onFocus={() => setFocusedCell({ row: rowIndex, col: colIndex })}
-                    onBlur={() => setFocusedCell(null)}
+                    onFocus={() => handleFocus(rowIndex, colIndex)}
+                    onBlur={() => handleBlur(rowIndex)}
                     onChange={(e) =>
                       handleInputChange(rowIndex, colIndex, e.target.value)
                     }

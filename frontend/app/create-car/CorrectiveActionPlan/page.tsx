@@ -8,7 +8,7 @@ import { CARProblemDesc, CARRootCause } from '@/configs/schema';
 import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
 
 const RCAPages: Record<string, string> = {
-  "Immediate Cause Only": "", 
+  "Immediate Cause Only": "/create-car/ImmediateRootCauseAnalysis", 
   "Simple Root Cause": "/create-car/SimpleRootCauseAnalysis",
   "Fish Bone Analysis": "/create-car/FishBoneAnalysis",
 }
@@ -56,6 +56,8 @@ export default function CorrectiveActionPlan() {
             })
               .then(response => response.json())
               .then(capData => {
+                console.log(`capData: ${JSON.stringify(capData)}`);
+                
                 const initialGridData = extractedRootCauses.reduce((acc: any, rootCause: string) => {
                   const existingData = capData.filter((item: any) => item.root_cause === rootCause);
                   acc[rootCause] = existingData.length > 0 ? existingData.map((item: any) => ({
@@ -107,25 +109,25 @@ export default function CorrectiveActionPlan() {
           updatedRows[rowIndex][field] = value;
           return { ...prevGridData, [rootCause]: updatedRows };
         });
-      };
+    };
       
-      const addRow = (rootCause: string) => {
+    const addRow = (rootCause: string) => {
         setGridData(prevGridData => {
           const updatedRows = [...(prevGridData[rootCause] || [])]; // Ensure it's an array
           updatedRows.push({ corrective_action: "", responsibility: "", target_date: "", actual_date: "", status: "" });
           return { ...prevGridData, [rootCause]: updatedRows };
         });
-      };
+    };
       
-      const removeRow = (rootCause: string, rowIndex: number) => {
+    const removeRow = (rootCause: string, rowIndex: number) => {
         setGridData(prevGridData => {
           if (!prevGridData[rootCause] || prevGridData[rootCause].length <= 1) return prevGridData;
           const updatedRows = prevGridData[rootCause].filter((_, index) => index !== rowIndex);
           return { ...prevGridData, [rootCause]: updatedRows };
         });
-      };
+    };
 
-      const validateData = () => {
+    const validateData = () => {
         for (const item of carRootCauses) {
           for (const row of gridData[item.root_cause] || []) {
             if (!row.corrective_action || !row.responsibility || !row.target_date || !row.status) {
@@ -137,48 +139,47 @@ export default function CorrectiveActionPlan() {
         }
         setMessage("");
         return true;
-      };      
+    };      
     
-      const saveData = async () => {
-        if (!validateData()) {
-            setMessage("All mandatory fields must be filled before saving.");
-            setMessageType("error");
-        }
-        else {
-            try {
-            const formattedData = Object.entries(gridData).flatMap(([rootCause, rows]) =>
-                rows.map(row => ({ car_number: car_number, root_cause: rootCause, ...row }))
-            );
+    const saveData = async () => {
+      if (!validateData()) {
+          setMessage("All mandatory fields must be filled before saving.");
+          setMessageType("error");
+      }
+      else {
+          try {
+          const formattedData = Object.entries(gridData).flatMap(([rootCause, rows]) =>
+              rows.map(row => ({ car_number: car_number, root_cause: rootCause, ...row }))
+          );
 
-            console.log(`Grid Data before adding to DB: ${JSON.stringify(formattedData)}`);
-            
-            
-            const response = await fetch(`${API_URL}/api/add_car_cap_data`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ entries: formattedData }),
-            });
-            
-            if (response.ok) {
-                const responseMessage = await response.json();
-                if (/success/i.test(responseMessage)) {
+          console.log(`Grid Data before adding to DB: ${JSON.stringify(formattedData)}`);
+          
+          
+          const response = await fetch(`${API_URL}/api/add_car_cap_data`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ entries: formattedData }),
+          });
+          
+          if (response.ok) {
+              const responseMessage = await response.json();
+              if (/success/i.test(responseMessage)) {
                 setMessageType('success');
                 setMessage("Successfully Added Data");
                 router?.push("/create-car/QMSProcessTraining");
-                } 
-                else {
+              } 
+              else {
                 setMessageType('error');
                 setMessage(responseMessage);
-                }
-            }
-            } catch (error) {
+              }
+          }
+          } catch (error) {
             console.error('Error saving data:', error);
             setMessageType('error');
             setMessage('An error occurred. Please try again.');
-            }
-        }
-      };    
-
+          }
+      }
+    };    
 
     return (
         <div className="p-6 space-y-6">
@@ -201,12 +202,12 @@ export default function CorrectiveActionPlan() {
                 <tbody>
                   {gridData[option.root_cause]?.map((row, rowIndex) => (
                     <tr key={rowIndex}>
-                      <td><Textarea value={row.corrective_action} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "corrective_action", e.target.value)} /></td>
-                      <td><Textarea value={row.responsibility} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "responsibility", e.target.value)} /></td>
-                      <td><Input type="date" value={row.target_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "target_date", e.target.value)} /></td>
-                      <td><Input type="date" value={row.actual_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "actual_date", e.target.value)} /></td>
-                      <td><Textarea value={row.status} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "status", e.target.value)} /></td>
-                      <td>{rowIndex > 0 && <Button onClick={() => removeRow(option.root_cause, rowIndex)} className="bg-red-500 text-white">X</Button>}</td>
+                      <td className="border border-gray-300 px-2 py-2"><Textarea value={row.corrective_action} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "corrective_action", e.target.value)} /></td>
+                      <td className="border border-gray-300 px-2 py-2"><Textarea value={row.responsibility} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "responsibility", e.target.value)} /></td>
+                      <td className="border border-gray-300 px-2 py-2"><Input type="date" value={row.target_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "target_date", e.target.value)} /></td>
+                      <td className="border border-gray-300 px-2 py-2"><Input type="date" value={row.actual_date} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "actual_date", e.target.value)} /></td>
+                      <td className="border border-gray-300 px-2 py-2"><Textarea value={row.status} onChange={(e) => handleInputChange(option.root_cause, rowIndex, "status", e.target.value)} /></td>
+                      <td className="border border-gray-300 px-2 py-2">{rowIndex > 0 && <Button onClick={() => removeRow(option.root_cause, rowIndex)} className="bg-red-500 text-white">X</Button>}</td>
                     </tr>
                   ))}
                 </tbody>

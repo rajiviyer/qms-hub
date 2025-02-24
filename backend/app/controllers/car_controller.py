@@ -20,9 +20,9 @@ def add_car_problem_desc_pphase(car_problem_desc_form: CARProblemDescForm, sessi
     try:
         car_problem_desc_query = text("""
             INSERT INTO
-                car_problem_definition(car_number, initiation_date, initiator,recipient,coordinator, source, description)
+                car_problem_definition(car_number, initiation_date, initiator,recipient,coordinator, source, description, user_org)
             VALUES
-                (:car_number, :initiation_date, :initiator, :recipient, :coordinator, :source, :description)
+                (:car_number, :initiation_date, :initiator, :recipient, :coordinator, :source, :description, :user_org)
             ON CONFLICT (car_number) DO UPDATE
             SET
                 initiation_date = EXCLUDED.initiation_date,
@@ -30,7 +30,8 @@ def add_car_problem_desc_pphase(car_problem_desc_form: CARProblemDescForm, sessi
                 recipient = EXCLUDED.recipient,
                 coordinator = EXCLUDED.coordinator,
                 source = EXCLUDED.source,
-                description = EXCLUDED.description;
+                description = EXCLUDED.description
+                user_org = EXCLUDED.user_org;
         """)
         session.execute(car_problem_desc_query, car_problem_desc_form.dict())
         session.commit()
@@ -366,8 +367,9 @@ def retrieve_car_cap_data(car_rootcause: CarRootCause, session: DBSession):
         car_cap_data = session.exec(
             select(CARCorrectiveActionPlan).\
                 where(CARCorrectiveActionPlan.car_number == car_rootcause["car_number"] 
-                      and CARCorrectiveActionPlan.root_cause == car_rootcause["root_cause"])
+                      and CARCorrectiveActionPlan.root_cause.in_(car_rootcause["root_causes"]))
             ).all()
+        print(f"car_cap_data: {car_cap_data}")
         return car_cap_data
     except NoResultFound:
         print(f"No car_cap_data found for car_number: {car_rootcause['car_number']} and root cause {car_rootcause['root_cause']}")
@@ -551,10 +553,10 @@ def retrieve_car_logs(user_org: UserOrg, session: DBSession):
         query = text("""
             select car_number, initiation_date::date::text, source, 
 	            (select max(cpp.target_date) from car_planning_phase cpp where cpp.car_number = cpd.car_number)::date::text as target_date
-            from car_problem_definition cpd ;
+            from car_problem_definition cpd where cpd.user_org = :user_org;
         """)
-        # car_logs = session.execute(query, {"user_org": user_org["user_org"]}).all()
-        car_logs = session.execute(query).fetchall()
+        car_logs = session.execute(query, {"user_org": user_org["user_org"]}).fetchall()
+        # car_logs = session.execute(query).fetchall()
         return [
             {
                 "car_number": car_number,

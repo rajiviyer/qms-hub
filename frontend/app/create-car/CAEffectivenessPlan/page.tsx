@@ -178,7 +178,7 @@ export default function CAEffectivenessPlan() {
                 setMessageType('success')
                 setMessage("Successfully Added Data")
                 // setCarProblemRedef(data);
-                // router?.push('/create-car/ValidateCANeed');
+                router?.push('/landing');
             }
             else {
                 setMessageType('error');

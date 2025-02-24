@@ -15,11 +15,19 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { CARProblemDesc } from '@/configs/schema';
 import { CARProblemDescContext } from '@/app/_context/CARProblemDescContext';
+import { UserContext } from "@/app/_context/UserContext";
+import { UserEmail, User, CarLog } from "@/configs/schema";
 
 
 export default function ProblemDescription()
     {     
       
+        const userContext = useContext(UserContext);
+        if (!userContext) {
+            throw new Error('UserContext is not available');
+        }
+        const { user, updateUser } = userContext;
+
         const carProblemDescContext = useContext(CARProblemDescContext);
         if (!carProblemDescContext) {
         throw new Error('carProblemDescContext is not available');
@@ -35,6 +43,7 @@ export default function ProblemDescription()
             coordinator: carProblemDesc?.coordinator,
             source: carProblemDesc?.source??defaultSource,
             description: carProblemDesc?.description,
+            user_org: carProblemDesc?.user_org || user?.organization,
             lacc_phase: carProblemDesc?.lacc_phase,
             lacc_responsibility: carProblemDesc?.lacc_responsibility,
             lacc_target_date: carProblemDesc?.lacc_target_date,
@@ -75,6 +84,7 @@ export default function ProblemDescription()
                             setValue('coordinator', data.coordinator);
                             setValue('source', data.source);
                             setValue('description', data.description);
+                            setValue('user_org', data.user_org);
                             setValue('lacc_phase', data.lacc_phase);
                             setValue('lacc_responsibility', data.lacc_responsibility);
                             setValue('lacc_target_date', data.lacc_target_date);
@@ -107,8 +117,8 @@ export default function ProblemDescription()
                     
                     
                     if (/success/i.test(responseMessage)) {
-                    setCarProblemDesc(data);
-                    router?.push('/create-car/LookAcross');
+                        setCarProblemDesc(data);
+                        router?.push('/create-car/LookAcross');
                     }
                     else {
                         setMessageType('error');

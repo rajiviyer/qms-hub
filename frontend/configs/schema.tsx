@@ -24,12 +24,13 @@ export interface CARProblemDesc {
   coordinator?: string;
   source?: string;
   description?: string;
+  user_org?: string;
   lacc_phase?: string;
   lacc_responsibility?: string;
   lacc_target_date?: Date;
   ca_phase?: string;
   ca_responsibility?: string;
-  ca_target_date?: Date;    
+  ca_target_date?: Date;  
 };
 
 export interface CARProblemRedef {

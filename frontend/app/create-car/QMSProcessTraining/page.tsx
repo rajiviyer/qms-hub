@@ -101,8 +101,9 @@ export default function QMSProcessTraining() {
     }        
 
     const handlePrevious = () => {
-        router.push("CorrectiveActionPlan");
-    };     
+        console.log("handlePrevious in QMSProcessTraining, To go to  CorrectiveActionPlan page");
+        router?.push("/create-car/CorrectiveActionPlan");
+    };         
 
   return (
     <div>
@@ -198,18 +199,19 @@ export default function QMSProcessTraining() {
                 </div>
             </div>
             <div className="flex justify-between mt-10">
-                        <Button
-                            className="text-primary"
-                            onClick={handlePrevious}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            className="text-primary"
-                            type="submit"
-                        >
-                            Next
-                        </Button>
+                <Button
+                    type="button"
+                    className="text-primary"
+                    onClick={handlePrevious}
+                >
+                    Previous
+                </Button>
+                <Button
+                    className="text-primary"
+                    type="submit"
+                >
+                    Next
+                </Button>
             </div>            
         </form>
     </div>

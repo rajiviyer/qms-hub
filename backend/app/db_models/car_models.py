@@ -12,6 +12,7 @@ class CARProblemDesc(SQLModel, table=True):
     coordinator: str
     source: str
     description: str
+    user_org: str
     class Config:
         schema = DB_SCHEMA    
     
