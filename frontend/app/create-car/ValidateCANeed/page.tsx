@@ -227,7 +227,7 @@ export default function ValidateCANeed() {
                         router?.push('/create-car/DefineRCAType');    
                     }
                     else {
-                        router?.push('/create-car');
+                        router?.push('/landing');
                     }
                     
                 }

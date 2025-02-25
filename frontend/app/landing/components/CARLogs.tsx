@@ -44,43 +44,53 @@ function CARLogs() {
   
   return (
     <div className="mt-10">
-        <h2 className="font-medium text-xl">Corrective Action Requests Log</h2>
-        {/* display car logs data in tabular format */}
-        <table className="min-w-full divide-y divide-gray-100 mt-6">
-            <thead>
-                <tr>
-                    <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider"></th>
-                    <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">CAR Number</th>
-                    <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">Initiation Date</th>
-                    <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">Source</th>
-                    <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">Target Date</th>
-                </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-                {carLogs.map((carLog, index) => (
-                    <tr key={index}>
-                        {/* First entry for car number should be a link to the /create-car page */}
-                        <td><Link href={`/create-car/?car_number=${carLog?.car_number}`}><HiPencilSquare size={20} /></Link></td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{carLog?.car_number}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{carLog?.initiation_date}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{carLog?.source}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            {
-                                new Date(carLog?.target_date) < new Date() ? (
-                                <span className="text-red-500">{carLog?.target_date}</span>
-                                ) : (
-                                new Date(carLog?.target_date) < new Date(new Date().setDate(new Date().getDate() + 7)) ? (
-                                    <span className="text-orange-500">{carLog?.target_date}</span>
-                                ) : (
-                                    <span>{carLog?.target_date}</span>
-                                )
-                                )   
-                            }
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+      {
+        carLogs.length === 0 ? (
+          <div className="text-lg font-medium text-gray-900">
+            <h2 className="font-medium text-xl">No CAR(s) Exist Yet</h2>
+          </div>
+        ) : (
+              <div>
+                <h2 className="font-medium text-xl">Corrective Action Requests Log</h2>
+                {/* display car logs data in tabular format */}
+                <table className="min-w-full divide-y divide-gray-100 mt-6">
+                    <thead>
+                        <tr>
+                            <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider"></th>
+                            <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">CAR Number</th>
+                            <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">Initiation Date</th>
+                            <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">Source</th>
+                            <th className="px-6 py-3 bg-primary text-left text-xs leading-4 font-medium text-black uppercase tracking-wider">Target Date</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {carLogs.map((carLog, index) => (
+                            <tr key={index}>
+                                {/* First entry for car number should be a link to the /create-car page */}
+                                <td><Link href={`/create-car/?car_number=${carLog?.car_number}`}><HiPencilSquare size={20} /></Link></td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">{carLog?.car_number}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">{carLog?.initiation_date}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">{carLog?.source}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {
+                                        new Date(carLog?.target_date) < new Date() ? (
+                                        <span className="text-red-500">{carLog?.target_date}</span>
+                                        ) : (
+                                        new Date(carLog?.target_date) < new Date(new Date().setDate(new Date().getDate() + 7)) ? (
+                                            <span className="text-orange-500">{carLog?.target_date}</span>
+                                        ) : (
+                                            <span>{carLog?.target_date}</span>
+                                        )
+                                        )   
+                                    }
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>  
+        )
+      }
     </div>
   )
 }

@@ -173,6 +173,10 @@ export default function CorrectiveActionPlan() {
                 setMessage(responseMessage);
               }
           }
+          else {
+              setMessageType('error');
+              setMessage('An error occurred. Please check the backend logs.');
+          }
           } catch (error) {
             console.error('Error saving data:', error);
             setMessageType('error');

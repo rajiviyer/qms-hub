@@ -27,6 +27,8 @@ export default function ProblemDescription()
             throw new Error('UserContext is not available');
         }
         const { user, updateUser } = userContext;
+        console.log(`user in ProblemDescription: ${JSON.stringify(user)}`);
+        
 
         const carProblemDescContext = useContext(CARProblemDescContext);
         if (!carProblemDescContext) {
@@ -34,6 +36,9 @@ export default function ProblemDescription()
         }
         const defaultSource = "CCN";
         const { carProblemDesc, setCarProblemDesc } = carProblemDescContext;
+
+        console.log(`user org: ${user?.organization}`);
+        
 
         const defaultCARProblemDesc: CARProblemDesc = {
             car_number: carProblemDesc?.car_number,
@@ -43,7 +48,7 @@ export default function ProblemDescription()
             coordinator: carProblemDesc?.coordinator,
             source: carProblemDesc?.source??defaultSource,
             description: carProblemDesc?.description,
-            user_org: carProblemDesc?.user_org || user?.organization,
+            user_org: user?.organization,
             lacc_phase: carProblemDesc?.lacc_phase,
             lacc_responsibility: carProblemDesc?.lacc_responsibility,
             lacc_target_date: carProblemDesc?.lacc_target_date,
@@ -51,6 +56,9 @@ export default function ProblemDescription()
             ca_responsibility: carProblemDesc?.ca_responsibility,
             ca_target_date: carProblemDesc?.ca_target_date
           };
+
+        console.log(`defaultCARProblemDesc: ${JSON.stringify(defaultCARProblemDesc)}`);
+        
 
         const {register, handleSubmit, setValue, watch} = useForm<CARProblemDesc>({defaultValues: defaultCARProblemDesc});
         const searchParams = useSearchParams();
@@ -101,14 +109,17 @@ export default function ProblemDescription()
         fetchData();
         }, [carNumberFromURL, setValue]);
 
+        // console.log(`carProblemDesc: ${JSON.stringify(carProblemDesc)}`);
+        console.log(`user org: ${user?.organization}`);
+
         const submitCARProblemDesc = async (data: CARProblemDesc) => {
             try {
-                console.log(`carProblemDesc: ${JSON.stringify(data)}`);
+                console.log(`carProblemDesc in submit: ${JSON.stringify({...data, "user_org": user?.organization})}`);
 
                 const response = await fetch(`${url}/api/add_car_problem_desc`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
+                    body: JSON.stringify({...data, "user_org": user?.organization}),
                 });
 
                 if (response.ok) {
@@ -217,6 +228,7 @@ export default function ProblemDescription()
                                     {...register("description", { required: true})}
                                 />
                             </div>
+                            {/* <div className="col-span-2 hidden">{...register("user_org", {required: true})}</div> */}
                             <div className="col-span-2">
                                 <fieldset className="form-group border border-gray-600 p-4 rounded">
                                     <legend className="text-lg font-bold text-gray-700">

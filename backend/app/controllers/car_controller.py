@@ -30,7 +30,7 @@ def add_car_problem_desc_pphase(car_problem_desc_form: CARProblemDescForm, sessi
                 recipient = EXCLUDED.recipient,
                 coordinator = EXCLUDED.coordinator,
                 source = EXCLUDED.source,
-                description = EXCLUDED.description
+                description = EXCLUDED.description,
                 user_org = EXCLUDED.user_org;
         """)
         session.execute(car_problem_desc_query, car_problem_desc_form.dict())
@@ -351,7 +351,7 @@ def add_car_cap_info(car_cap_data: CARCorrectiveActionPlanData, session: DBSessi
                     corrective_action = entry.corrective_action,
                     responsibility = entry.responsibility,
                     target_date = entry.target_date,
-                    actual_date = entry.actual_date if entry.actual_date else "",
+                    actual_date = entry.actual_date if entry.actual_date else None,
                     status = entry.status
                 )
                 session.add(new_entry)
@@ -435,7 +435,7 @@ def add_car_ca_effectiveness_plan(car_ca_effectiveness_plan: CARCAEffectivenessP
                     planned_action = entry.planned_action,
                     responsibility = entry.responsibility,
                     target_date = entry.target_date,
-                    actual_date = entry.actual_date if entry.actual_date else "",
+                    actual_date = entry.actual_date if entry.actual_date else None,
                     status = entry.status
                 )
                 session.add(new_entry)

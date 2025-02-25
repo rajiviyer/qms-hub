@@ -2,6 +2,7 @@ from typing import Optional, List
 from sqlmodel import SQLModel, Field, PrimaryKeyConstraint
 from datetime import datetime, date
 from ..settings import DB_SCHEMA
+from pydantic import field_validator
 
 class CARProblemDesc(SQLModel, table=True):
     __tablename__ = "car_problem_definition"
@@ -14,7 +15,7 @@ class CARProblemDesc(SQLModel, table=True):
     description: str
     user_org: str
     class Config:
-        schema = DB_SCHEMA    
+        schema = DB_SCHEMA
     
 class CARPlanningPhase(SQLModel, table=True):
     __tablename__ = "car_planning_phase"
@@ -27,7 +28,7 @@ class CARPlanningPhase(SQLModel, table=True):
     responsibility: str
     target_date: datetime
     class Config:
-        schema = DB_SCHEMA    
+        schema = DB_SCHEMA
         
 
 class CARProblemDescForm(SQLModel):
@@ -38,12 +39,13 @@ class CARProblemDescForm(SQLModel):
     coordinator: str;
     source: str;
     description: str;
+    user_org: str;
     lacc_phase: str;
     lacc_responsibility: str;
     lacc_target_date: date;
     ca_phase: str;
     ca_responsibility: str;
-    ca_target_date: date;        
+    ca_target_date: date;   
     
 class CARProblemRedef(SQLModel, table=True):
     __tablename__ = "car_problem_redefinition"
@@ -56,7 +58,7 @@ class CARProblemRedef(SQLModel, table=True):
     containment: str
     corr_cont_date: datetime
     class Config:
-        schema = DB_SCHEMA   
+        schema = DB_SCHEMA
         
 class CARCANeed(SQLModel, table=True):
     __tablename__ = "car_ca_need"
@@ -103,7 +105,7 @@ class SimpleRootCauseAnalysis(SQLModel, table=True):
     column_header: str
     root_cause: str = Field(default="")
     class Config:
-        schema = DB_SCHEMA    
+        schema = DB_SCHEMA
 
 class ImmediateRootCauseAnalysis(SQLModel, table=True):
     __tablename__ = "car_immediate_root_cause_analysis" 
@@ -113,7 +115,7 @@ class ImmediateRootCauseAnalysis(SQLModel, table=True):
     car_number: str = Field(foreign_key="car_problem_definition.car_number")
     root_cause: str = Field(default="")
     class Config:
-        schema = DB_SCHEMA               
+        schema = DB_SCHEMA    
 
 class CARCorrectiveActionPlan(SQLModel, table=True):
     __tablename__ = "car_corrective_action_plan"
@@ -128,7 +130,26 @@ class CARCorrectiveActionPlan(SQLModel, table=True):
     actual_date: Optional[date]
     status: str
     class Config:
-        schema = DB_SCHEMA  
+        schema = DB_SCHEMA
+
+class CARCorrectiveActionPlanEntry(SQLModel):
+    car_number: str
+    root_cause: str
+    corrective_action: str
+    responsibility: str
+    target_date: date
+    actual_date: Optional[date]
+    status: str
+    
+    @field_validator("actual_date", mode="before")
+    @classmethod
+    def convert_empty_string_to_none(cls, value):
+        if value == "":
+            return None
+        return value    
+    
+class CARCorrectiveActionPlanData(SQLModel):
+    entries: List[CARCorrectiveActionPlanEntry]        
 
 # Define Fishbone Request Model for Batch Insert
 class FishboneEntry(SQLModel):
@@ -145,23 +166,11 @@ class SimpleRootCauseEntry(SQLModel):
     car_number: str
     row_header: str
     column_header: str
-    root_cause: str 
+    root_cause: str
 
 class SimpleRootCauseData(SQLModel):
     car_number: str
-    entries: List[SimpleRootCauseEntry]       
-    
-class CARCorrectiveActionPlanEntry(SQLModel):
-    car_number: str
-    root_cause: str
-    corrective_action: str
-    responsibility: str
-    target_date: date
-    actual_date: Optional[date]
-    status: str
-    
-class CARCorrectiveActionPlanData(SQLModel):
-    entries: List[CARCorrectiveActionPlanEntry]
+    entries: List[SimpleRootCauseEntry]
 
 class CARQPTReq(SQLModel, table = True):
     __tablename__ = "car_qpt_requirements"
@@ -192,8 +201,20 @@ class CARCAEffectivenessPlan(SQLModel, table=True):
     class Config:
         schema = DB_SCHEMA
 
+class CARCAEffectivenessPlanEntry(SQLModel):
+    car_number: str
+    planned_action: str 
+    responsibility: str
+    target_date: date
+    actual_date: Optional[date]
+    status: str
+    
+    @field_validator("actual_date", mode="before")
+    @classmethod
+    def convert_empty_string_to_none(cls, value):
+        if value == "":
+            return None
+        return value          
+
 class CARCAEffectivenessPlanData(SQLModel):
-    entries: List[CARCAEffectivenessPlan]        
-        
-        
-          
+    entries: List[CARCAEffectivenessPlanEntry]
