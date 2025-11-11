@@ -18,7 +18,7 @@ export default function ImmediateRootCauseAnalysis() {
   console.log(`In Immediate Root Cause page, car number: ${car_number}`);
 
 const [ carImmediateRCA, setCarImmediateRCA ] = useState<CarImmediateRCA | null>({
-    car_number: car_number || "",
+    car_number: car_number || 0,
     root_cause: ""});  
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;

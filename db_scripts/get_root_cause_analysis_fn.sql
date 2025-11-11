@@ -1,8 +1,8 @@
 DROP FUNCTION IF EXISTS get_root_cause_analysis;
 
-CREATE OR REPLACE FUNCTION get_root_cause_analysis(p_car_number TEXT)
+CREATE OR REPLACE FUNCTION get_root_cause_analysis(p_car_number INTEGER)
 RETURNS TABLE (
-    car_number TEXT,
+    car_number INTEGER,
     root_cause TEXT
 ) AS $$
 DECLARE
@@ -20,7 +20,7 @@ BEGIN
     IF v_rca_type = 'Simple Root Cause' THEN
         -- If RCA type is 'Simple Root Cause', return data from car_simple_root_cause_analysis
         RETURN QUERY
-        SELECT srcr.car_number::TEXT, srcr.root_cause::TEXT 
+        SELECT srcr.car_number, srcr.root_cause::TEXT 
         FROM (
             SELECT *, RANK() OVER (PARTITION BY row_header ORDER BY id DESC) AS rnk
             FROM car_simple_root_cause_analysis cscrca
@@ -31,13 +31,13 @@ BEGIN
 	ELSIF v_rca_type = 'Immediate Cause Only' THEN
 		-- If RCA type is 'Immediate Root Cause', return data from car_immediate_root_cause_analysis 
         RETURN QUERY
-            SELECT circa.car_number::TEXT, circa.root_cause::TEXT
+            SELECT circa.car_number, circa.root_cause::TEXT
             FROM car_immediate_root_cause_analysis  circa
             WHERE circa.car_number = p_car_number;
     ELSE
         -- Otherwise, return data from car_fishbone_analysis
         RETURN QUERY
-        SELECT cfar.car_number::TEXT, cfar.data::TEXT AS root_cause
+        SELECT cfar.car_number, cfar.data::TEXT AS root_cause
         FROM (
             SELECT *, RANK() OVER (PARTITION BY row_header ORDER BY id DESC) AS rnk
             FROM car_fishbone_analysis cfa  

@@ -35,14 +35,58 @@ export default function SignIn() {
                 const refresh_expiration_time = new Date();
                 access_expiration_time.setSeconds(access_expiration_time.getSeconds() + access_token.expiry_time);
                 refresh_expiration_time.setSeconds(refresh_expiration_time.getSeconds() + refresh_token.expiry_time); 
-                // console.log(access_expiration_time);
-                setMessageType('success');
-                setMessage('Login successful!');
+                
+                // Set access token cookie
                 setCookie("access_token", access_token.token, {
                     expires: access_expiration_time
                 });
 
-                router.push("/landing");   // Redirect to Home page
+                // Decode token to get user_email and user_name (same as middleware does)
+                try {
+                    const tokenPayload = JSON.parse(atob(access_token.token.split('.')[1]));
+                    const user_email = tokenPayload.user_email;
+                    const user_name = tokenPayload.user_name;
+                    
+                    // Set user_email and user_name cookies immediately (before redirect)
+                    setCookie("user_email", user_email, {
+                        expires: access_expiration_time
+                    });
+                    setCookie("user_name", user_name, {
+                        expires: access_expiration_time
+                    });
+
+                    // Fetch user details including organization before redirecting
+                    const userEmail = { user_email: user_email };
+                    const userResponse = await fetch(`${url}/api/getuser`, {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(userEmail)
+                    });
+
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        console.log("User details fetched:", userData);
+                        
+                        // Verify we have all required data before redirecting
+                        if (userData.organization && user_email && user_name) {
+                            setMessageType('success');
+                            setMessage('Login successful!');
+                            router.push("/landing");   // Redirect only after all data is loaded
+                        } else {
+                            setMessageType('error');
+                            setMessage('Failed to retrieve user organization. Please try again.');
+                        }
+                    } else {
+                        setMessageType('error');
+                        setMessage('Failed to retrieve user details. Please try again.');
+                    }
+                } catch (decodeError) {
+                    console.error("Error decoding token:", decodeError);
+                    setMessageType('error');
+                    setMessage('Invalid token received. Please try again.');
+                }
             }
             else {
                 const errorData = await response.json();

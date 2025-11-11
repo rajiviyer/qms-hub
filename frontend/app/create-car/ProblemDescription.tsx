@@ -63,6 +63,7 @@ export default function ProblemDescription()
         const {register, handleSubmit, setValue, watch} = useForm<CARProblemDesc>({defaultValues: defaultCARProblemDesc});
         const searchParams = useSearchParams();
         const carNumberFromURL = searchParams.get('car_number');
+        const carNumberFromURLInt = carNumberFromURL ? parseInt(carNumberFromURL, 10) : null;
         console.log(`carNumberFromURL: ${carNumberFromURL}`);
         
         const url = process.env.NEXT_PUBLIC_API_URL;
@@ -73,13 +74,14 @@ export default function ProblemDescription()
 
         useEffect(() => {
             async function fetchData() {
-                if (carNumberFromURL) {
-                    console.log("In useEffect ProblemDescription");
+                if (carNumberFromURLInt) {
+                    // Editing existing CAR - load from database
+                    console.log("In useEffect ProblemDescription - Loading existing CAR");
                     
                     const response = await fetch(`${url}/api/get_car_problem_desc`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ car_number: carNumberFromURL }),
+                        body: JSON.stringify({ car_number: carNumberFromURLInt }),
                     }).then(response => response.json())
                     .then(data => {
                         if (data) {
@@ -101,13 +103,35 @@ export default function ProblemDescription()
                             setValue('ca_target_date', data.ca_target_date);
                         }
                         else {
-                            setValue('car_number', carNumberFromURL);
+                            setValue('car_number', carNumberFromURLInt);
                         }
                     });
+                } else {
+                    // New CAR - auto-generate CAR number if not already set
+                    const currentCarNumber = defaultCARProblemDesc.car_number;
+                    if (!currentCarNumber) {
+                        console.log("In useEffect ProblemDescription - Generating new CAR number");
+                        try {
+                            const response = await fetch(`${url}/api/get_next_car_number`, {
+                                method: 'GET',
+                                headers: { 'Content-Type': 'application/json' },
+                            });
+                            if (response.ok) {
+                                const data = await response.json();
+                                console.log(`Next CAR number: ${data.car_number}`);
+                                setValue('car_number', data.car_number);
+                            } else {
+                                console.error('Failed to get next CAR number');
+                            }
+                        } catch (error) {
+                            console.error('Error fetching next CAR number:', error);
+                        }
+                    }
                 }
             }
         fetchData();
-        }, [carNumberFromURL, setValue]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [carNumberFromURLInt, setValue]);
 
         // console.log(`carProblemDesc: ${JSON.stringify(carProblemDesc)}`);
         console.log(`user org: ${user?.organization}`);
@@ -161,8 +185,9 @@ export default function ProblemDescription()
                                 <Input
                                     type="text"
                                     className="text-xl"
-                                    placeholder={"CAR Number"}
+                                    placeholder={"CAR Number (Auto-generated)"}
                                     {...register("car_number", { required: "Enter CAR Number"})}
+                                    readOnly={!carNumberFromURLInt && !carProblemDesc?.car_number}
                                 />
                             </div>
                             <div>
@@ -210,11 +235,11 @@ export default function ProblemDescription()
                                     <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                    <SelectItem value="CCN">CCN</SelectItem>
-                                    <SelectItem value="IA">IA</SelectItem>
+                                    <SelectItem value="CCN">Customer Complaint</SelectItem>
+                                    <SelectItem value="IA">Internal Audit</SelectItem>
                                     <SelectItem value="Supplier Audit">Supplier Audit</SelectItem>
                                     <SelectItem value="Customer Audit">Customer Audit</SelectItem>
-                                    <SelectItem value="TPA">TPA</SelectItem>                        
+                                    <SelectItem value="TPA">Third Party Audit</SelectItem>                        
                                     </SelectContent>
                                 </Select>
                             </div>

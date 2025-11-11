@@ -2,38 +2,38 @@ import React from 'react';
 import CARCard from './CARCard';
 
 interface CARDetails {
-    car_number: string;
+    car_number: number;
     description: string;
 }
 
 export default function CARList() {
     const carList = [
         {
-            "car_number": "CAR_001",
+            "car_number": 1,
             "description": "lorem ipsum dolor sit amet consectetur adipiscing elit"
         },
         {
-            "car_number": "CAR_003",
+            "car_number": 3,
             "description": "lorem ipsum dolor sit amet consectetur adipiscing elit"
         },
         {
-            "car_number": "CAR_04001",
+            "car_number": 4001,
             "description": "lorem ipsum dolor sit amet consectetur adipiscing elit"
         },
         {
-            "car_number": "CAR_001",
+            "car_number": 1,
             "description": "lorem ipsum dolor sit amet consectetur adipiscing elit"
         },
         {
-          "car_number": "CAR_025",
+          "car_number": 25,
           "description": "lorem ipsum dolor sit amet consectetur adipiscing elit"
         },
         {
-          "car_number": "CAR_051",
+          "car_number": 51,
           "description": "lorem ipsum dolor sit amet consectetur adipiscing elit"
         },
         {
-          "car_number": "CAR_022",
+          "car_number": 22,
           "description": "lorem ipsum dolor sit amet consectetur adipiscing elit"
         },
 

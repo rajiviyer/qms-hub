@@ -17,7 +17,7 @@ export interface User {
 }
 
 export interface CARProblemDesc {
-  car_number?: string;
+  car_number?: number;
   initiation_date?: Date;
   initiator?: string;
   recipient?: string;
@@ -34,7 +34,7 @@ export interface CARProblemDesc {
 };
 
 export interface CARProblemRedef {
-  car_number: string;
+  car_number: number;
   redefined_problem: string;
   correction: string;
   containment: string;
@@ -42,7 +42,7 @@ export interface CARProblemRedef {
 };
 
 export interface CARCANeed {
-  car_number: string;
+  car_number: number;
   ca_required: string;
   required_by: string;
   comment: string;
@@ -53,7 +53,7 @@ export interface CARCANeed {
 };
 
 export interface CARQPTReq {
-  car_number: string;
+  car_number: number;
   qms_required: string;
   qms_required_comments: string;
   qms_documentation_required: string;
@@ -63,17 +63,17 @@ export interface CARQPTReq {
 }
 
 export interface CarRCAType {
-  car_number: string;
+  car_number: number;
   rca_type: string;
 }
 
 export interface CarImmediateRCA {
-  car_number: string;
+  car_number: number;
   root_cause: string;
 }
 
 export interface CARRootCause {
-  car_number: string;
+  car_number: number;
   root_cause: string;
 }
 
@@ -82,11 +82,11 @@ export interface UserEmail {
 };
 
 export interface CarNumber {
-  car_number: string;
+  car_number: number;
 };
 
 export interface CarLog {
-  car_number: string;
+  car_number: number;
   initiation_date: string;
   source: string;
   target_date: string;

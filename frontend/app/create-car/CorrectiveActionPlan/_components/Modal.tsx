@@ -141,7 +141,7 @@ export default function Modal({ isOpen, onClose, content }: ModalProps) {
     return true;
   };  
 
-  const convertGridToObjects = (gridData: string[][], columnHeaders: string[], car_number: string, root_cause: string) => {
+  const convertGridToObjects = (gridData: string[][], columnHeaders: string[], car_number: number, root_cause: string) => {
     return gridData.map((row) => {
       const formattedRow = Object.fromEntries(
         columnHeaders.map((col, index) => [

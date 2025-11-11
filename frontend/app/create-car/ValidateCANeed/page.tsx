@@ -126,7 +126,7 @@ export default function ValidateCANeed() {
     // const [ carCANeed, setCarCANeed ] = useState<CARCANeed | null>(null);
     const { register, handleSubmit, setValue, watch, reset } = useForm<CARCANeed>({
         defaultValues: {
-            car_number: car_number || "",
+            car_number: car_number || 0,
             ca_required: caRequiredOptions[0],
             required_by: "",
             comment: "",

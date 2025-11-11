@@ -31,7 +31,7 @@ export default function QMSProcessTraining() {
 
     const { register, handleSubmit, setValue, watch, reset } = useForm({
         defaultValues: {
-            car_number: car_number || "",
+            car_number: car_number || 0,
             qms_required: "Yes",
             qms_required_comments: "",
             qms_documentation_required: "Yes",

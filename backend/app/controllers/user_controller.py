@@ -133,3 +133,43 @@ def retrieve_user_details(user_email: UserEmail,
         return user
     except:
         raise NotFoundException("User")
+
+def logout_user(user_email: UserEmail,
+                session: DBSession):
+    """
+    Logout user by invalidating their refresh token in the database.
+    """
+    try:
+        print(f"Logout request for user_email: {user_email}")
+        # Find user by email
+        try:
+            user = session.exec(
+                select(User).\
+                    where(User.user_email == user_email["user_email"])
+                ).one()
+        except:
+            # User not found - return success anyway for security (don't reveal if user exists)
+            return {"message": "Logout successful"}
+        
+        # Find and invalidate refresh token
+        try:
+            token = session.exec(
+                select(Token).\
+                    where(Token.user_id == user.user_id)
+                ).one()
+            # Invalidate refresh token by setting to empty string
+            token.refresh_token = ""
+            session.add(token)
+            session.commit()
+            session.refresh(token)
+            print(f"Refresh token invalidated for user: {user_email['user_email']}")
+            return {"message": "Logout successful"}
+        except:
+            # Token not found - user may have already logged out or token doesn't exist
+            # Return success anyway
+            print(f"No token found for user: {user_email['user_email']}")
+            return {"message": "Logout successful"}
+    except Exception as e:
+        print(f"Error during logout: {e}")
+        # Even on error, return success to prevent information leakage
+        return {"message": "Logout successful"}

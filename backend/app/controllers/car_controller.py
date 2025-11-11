@@ -617,4 +617,36 @@ def retrieve_car_problem_desc(car_number: CarNumber, session: DBSession):
     except Exception as e:
         print(f"Exception in get_car_problem_desc: {e}")
         raise Exception(f"Exception in get_car_problem_desc: {e}")
+
+def get_next_car_number(session: DBSession):
+    """
+    Get the next CAR number from the sequence.
+    Returns an integer.
+    """
+    try:
+        next_car_number_query = text("SELECT nextval('car_number_seq')")
+        result = session.execute(next_car_number_query)
+        next_number = result.scalar()
+        return {"car_number": next_number}
+    except Exception as e:
+        print(f"Exception in get_next_car_number: {e}")
+        # If sequence doesn't exist, try to create it and retry
+        try:
+            create_sequence_query = text("""
+                CREATE SEQUENCE IF NOT EXISTS car_number_seq
+                    START WITH 1
+                    INCREMENT BY 1
+                    NO MINVALUE
+                    NO MAXVALUE
+                    CACHE 1;
+            """)
+            session.execute(create_sequence_query)
+            session.commit()
+            # Retry getting the next number
+            result = session.execute(next_car_number_query)
+            next_number = result.scalar()
+            return {"car_number": next_number}
+        except Exception as e2:
+            print(f"Exception creating sequence: {e2}")
+            raise Exception(f"Exception in get_next_car_number: {e2}")
     

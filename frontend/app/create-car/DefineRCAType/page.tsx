@@ -32,7 +32,7 @@ export default function DefineRCAType() {
     console.log(`In RCA Type page, car number: ${car_number}`);
 
     const [ carRCAType, setCARRcaType ] = useState<CarRCAType | null>({
-        car_number: car_number || "",
+        car_number: car_number || 0,
         rca_type: "Fish Bone Analysis",});
 
     const url = process.env.NEXT_PUBLIC_API_URL;

@@ -12,7 +12,7 @@ from .db_models.car_models import CARProblemDesc, CARPlanningPhase, CARCANeed
 from .utils.exceptions import (
     NotFoundException, UserEmailExistsException, InvalidInputException, TokenException
     )
-from .controllers.user_controller import sign_up, sign_in, retrieve_user_details
+from .controllers.user_controller import sign_up, sign_in, retrieve_user_details, logout_user
 from .controllers.car_controller import (retrieve_car_problem_desc, add_car_problem_desc_pphase, add_car_problem_redefinition, 
                                          retrieve_car_problem_redefinition, retrieve_car_ca_need, add_car_ca_need_requirement,
                                          retrieve_car_rca_type, add_car_rca_type_selection, add_car_fishbone_analysis, 
@@ -21,7 +21,7 @@ from .controllers.car_controller import (retrieve_car_problem_desc, add_car_prob
                                          add_car_ca_effectiveness_plan, retrieve_car_ca_effectiveness_plan,
                                          add_car_simple_root_cause_analysis, retrieve_car_simple_root_cause_analysis,
                                          add_car_immediate_root_cause_analysis, retrieve_car_immediate_root_cause_analysis,
-                                         retrieve_car_logs, retrieve_car_problem_desc
+                                         retrieve_car_logs, retrieve_car_problem_desc, get_next_car_number
                                          )
 
 
@@ -31,12 +31,13 @@ async def lifespan(app: FastAPI):
     create_table()
     yield
 
-app = FastAPI(lifespan=lifespan)
-# app = FastAPI(
-#     title = "Backend API",
-#     version = "1.0.0",
-#     description = "Backend API for Audit Planning and Coordination Tool"
-#     )
+# app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title = "Backend API",
+    version = "0.0.1",
+    description = "Backend API for Audit Planning and Coordination Tool",
+    lifespan = lifespan
+    )
 
 # Middleware for CORS
 app.add_middleware(
@@ -92,6 +93,14 @@ def user_signin(user_token_data: Annotated[dict, Depends(sign_in)]):
 def get_user(user: Annotated[dict, Depends(retrieve_user_details)]):
     print("user: ", user)
     return user
+
+@app.post("/api/logout")
+def user_logout(logout_response: Annotated[dict, Depends(logout_user)]):
+    """
+    Endpoint to logout user by invalidating refresh token in database.
+    """
+    print(f"Logout response: {logout_response}")
+    return logout_response
 
 @app.post("/api/add_car_problem_desc")
 def add_car_problem_desc(message: Annotated[str, Depends(add_car_problem_desc_pphase)]):
@@ -243,7 +252,10 @@ def get_car_logs(car_logs: Annotated[dict, Depends(retrieve_car_logs)]):
     """
     return car_logs
 
-@app.post("/api/get_car_problem_desc")
-def get_car_problem_desc(car_problem_desc: Annotated[dict, Depends(retrieve_car_problem_desc)]):
-    print("problem_desc: ", car_problem_desc)
-    return car_problem_desc
+@app.get("/api/get_next_car_number")
+def get_next_car_number_endpoint(next_car_number: Annotated[dict, Depends(get_next_car_number)]):
+    """
+    Endpoint to get the next available CAR number from the sequence.
+    Returns a dictionary with 'car_number' as an integer.
+    """
+    return next_car_number

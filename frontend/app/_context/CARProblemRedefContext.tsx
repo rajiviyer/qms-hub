@@ -13,7 +13,7 @@ export const CARProblemRedefContext = createContext<CARProblemRedefContextType |
 
 export const CARProblemRedefContextProvider: React.FC<{children: ReactNode}> = ({children}) => {
   const [carProblemRedef, setCarProblemRedef] = useState<CARProblemRedef>(
-    {"car_number": "", "redefined_problem": "", "correction": "", "containment": "", "corr_cont_date": new Date()}
+    {"car_number": 0, "redefined_problem": "", "correction": "", "containment": "", "corr_cont_date": new Date()}
 ); 
   return (
     <CARProblemRedefContext.Provider value={{ carProblemRedef, setCarProblemRedef }}>

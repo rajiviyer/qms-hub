@@ -6,7 +6,7 @@ from pydantic import field_validator
 
 class CARProblemDesc(SQLModel, table=True):
     __tablename__ = "car_problem_definition"
-    car_number: str = Field(primary_key=True)
+    car_number: int = Field(primary_key=True)
     initiation_date: datetime = Field(default_factory=datetime.now)
     initiator: str
     recipient: str
@@ -23,7 +23,7 @@ class CARPlanningPhase(SQLModel, table=True):
         PrimaryKeyConstraint('car_number', 'phase', name='car_planning_phase_pk'),
     )
     
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     phase: str
     responsibility: str
     target_date: datetime
@@ -32,7 +32,7 @@ class CARPlanningPhase(SQLModel, table=True):
         
 
 class CARProblemDescForm(SQLModel):
-    car_number: str;
+    car_number: int;
     initiation_date: date;
     initiator: str;
     recipient: str;
@@ -52,7 +52,7 @@ class CARProblemRedef(SQLModel, table=True):
     __table_args__ = (
         PrimaryKeyConstraint('car_number', name='car_problem_redefinition_pk'),
     )
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     redefined_problem: str
     correction: str
     containment: str
@@ -65,7 +65,7 @@ class CARCANeed(SQLModel, table=True):
     __table_args__ = (
         PrimaryKeyConstraint('car_number', name='car_ca_need_pk'),
     )
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     ca_required: str
     required_by: str
     comment: str
@@ -81,7 +81,7 @@ class CARRCATypeSelection(SQLModel, table=True):
     __table_args__ = (
         PrimaryKeyConstraint('car_number', name='car_rca_type_selection_pk'),
     )
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     rca_type: str
     class Config:
         schema = DB_SCHEMA
@@ -90,7 +90,7 @@ class CARRCATypeSelection(SQLModel, table=True):
 class FishboneAnalysis(SQLModel, table=True):
     __tablename__ = "car_fishbone_analysis" 
     id: int = Field(default=None, primary_key=True)
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     row_header: str
     column_header: str
     data: str = Field(default="")
@@ -100,7 +100,7 @@ class FishboneAnalysis(SQLModel, table=True):
 class SimpleRootCauseAnalysis(SQLModel, table=True):
     __tablename__ = "car_simple_root_cause_analysis" 
     id: int = Field(default=None, primary_key=True)
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     row_header: str
     column_header: str
     root_cause: str = Field(default="")
@@ -112,7 +112,7 @@ class ImmediateRootCauseAnalysis(SQLModel, table=True):
     __table_args__ = (
         PrimaryKeyConstraint('car_number', name='car_irca_pk'),
     )    
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     root_cause: str = Field(default="")
     class Config:
         schema = DB_SCHEMA    
@@ -122,7 +122,7 @@ class CARCorrectiveActionPlan(SQLModel, table=True):
     __table_args__ = (
         PrimaryKeyConstraint('car_number', 'root_cause', 'corrective_action', name='car_cap_ca_pk'),
     )
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     root_cause: str
     corrective_action: str
     responsibility: str
@@ -133,7 +133,7 @@ class CARCorrectiveActionPlan(SQLModel, table=True):
         schema = DB_SCHEMA
 
 class CARCorrectiveActionPlanEntry(SQLModel):
-    car_number: str
+    car_number: int
     root_cause: str
     corrective_action: str
     responsibility: str
@@ -153,23 +153,23 @@ class CARCorrectiveActionPlanData(SQLModel):
 
 # Define Fishbone Request Model for Batch Insert
 class FishboneEntry(SQLModel):
-    car_number: str
+    car_number: int
     row_header: str
     column_header: str
     data: str
 
 class FishboneData(SQLModel):
-    car_number: str
+    car_number: int
     entries: List[FishboneEntry]
     
 class SimpleRootCauseEntry(SQLModel):
-    car_number: str
+    car_number: int
     row_header: str
     column_header: str
     root_cause: str
 
 class SimpleRootCauseData(SQLModel):
-    car_number: str
+    car_number: int
     entries: List[SimpleRootCauseEntry]
 
 class CARQPTReq(SQLModel, table = True):
@@ -177,7 +177,7 @@ class CARQPTReq(SQLModel, table = True):
     __table_args__ = (
         PrimaryKeyConstraint('car_number', name='car_qpt_requirements_pk'),
     )
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     qms_required: str
     qms_required_comments: str
     qms_documentation_required: str
@@ -192,7 +192,7 @@ class CARCAEffectivenessPlan(SQLModel, table=True):
     __table_args__ = (
         PrimaryKeyConstraint('car_number', 'planned_action', name='car_ca_effectiveness_plan_pk'),
     )
-    car_number: str = Field(foreign_key="car_problem_definition.car_number")
+    car_number: int = Field(foreign_key="car_problem_definition.car_number")
     planned_action: str
     responsibility: str
     target_date: date
@@ -202,7 +202,7 @@ class CARCAEffectivenessPlan(SQLModel, table=True):
         schema = DB_SCHEMA
 
 class CARCAEffectivenessPlanEntry(SQLModel):
-    car_number: str
+    car_number: int
     planned_action: str 
     responsibility: str
     target_date: date

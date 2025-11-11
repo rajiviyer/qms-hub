@@ -13,7 +13,7 @@ export const CARCANeedContext = createContext<CARCANeedContextType | undefined>(
 
 export const CARCANeedContextProvider: React.FC<{children: ReactNode}> = ({children}) => {
   const [carCANeed, setCarCANeed] = useState<CARCANeed>(
-    {"car_number": "", "ca_required": "", "required_by": "", "comment":"", "severity": 1, "occurrence": 1, "rpn": 1, "ca_needed": ""}
+    {"car_number": 0, "ca_required": "", "required_by": "", "comment":"", "severity": 1, "occurrence": 1, "rpn": 1, "ca_needed": ""}
 ); 
   return (
     <CARCANeedContext.Provider value={{ carCANeed, setCarCANeed }}>

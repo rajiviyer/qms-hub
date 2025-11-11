@@ -13,10 +13,10 @@ class UserEmail(TypedDict):
     user_email: str;
     
 class CarNumber(TypedDict):
-    car_number: str
+    car_number: int
     
 class CarRootCause(TypedDict):
-    car_number: str
+    car_number: int
     root_causes: List[str]
     
 class UserOrg(TypedDict):

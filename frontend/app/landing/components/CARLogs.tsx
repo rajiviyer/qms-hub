@@ -13,7 +13,7 @@ function CARLogs() {
   const { user, updateUser } = userContext;
   const [carLogs, setCarLogs] = useState<CarLog[]>([
     {
-      car_number: "",
+      car_number: 0,
       initiation_date: "",
       source: "",
       target_date: ""}

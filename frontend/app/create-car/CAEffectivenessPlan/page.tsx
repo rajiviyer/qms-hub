@@ -125,7 +125,7 @@ export default function CAEffectivenessPlan() {
     return true;
     };  
 
-    const convertGridToObjects = (gridData: string[][], columnHeaders: string[], car_number: string) => {
+    const convertGridToObjects = (gridData: string[][], columnHeaders: string[], car_number: number) => {
     return gridData.map((row) => {
         const formattedRow = Object.fromEntries(
         columnHeaders.map((col, index) => [
